@@ -47,52 +47,59 @@ Example:
 We can easily obtain frequency of terms by len() function: len(vocabs["edit"])
 """
 
-regexp=re.compile('^["a-z]+[a-z0-9.?,;"!\']*$')
+regexp=re.compile('^["a-z]+[a-z0-9.?,;"!\')(]*$')
 toker = RegexpTokenizer(r'((?<=[^\w\s])\w(?=[^\w\s])|(\W))+', gaps=True)
 stemmer = PorterStemmer()
 stop = stopwords.words('english')
 
 # we determine the terms that we'll meet some problem
-terms_to_update = {"i'll": "i will", "you'll": "you will", "he'll":"he will",
-        "she'll": "she will", "it'll":"it will", "we'll":"we will", 
-        "they'll":"they will", "i'm":"i am", "you're":"you are", 
-        "he's":"he is", "she's":"she is", "we're":"we are", 
-        "they're":"they are", "i'd":"i would", "you'd":"you would", 
-        "he'd":"he would", "we'd":"we would", "they'd":"they would", 
-        "that's":"that is","it's":"it is", "how's":"how is", 
-        "what's":"what is", "where's":"where is", "who's":"who is", 
-        "i've":"i have", "you've":"you have", "we've":"we have", 
-        "they've":"they have", "won't":"will not", "didn't":"did not", 
-        "wasn't":"was not", "doesn't":"does not","don't":"do not", 
-        "couldn't":"could not", "can't":"can not", "aren't":"are not", 
-        "isn't":"is not", "musn't":"must not", "let's":"let us",
-        "hadn't":"had not", "haven't":"have not", "hasn't":"has not",
-        "there's":"there is", "there're":"there are"}
+terms_to_remove = ["i'll", "you'll", "he'll",
+        "she'll", "it'll", "we'll", 
+        "they'll", "i'm", "you're", 
+        "he's", "she's", "we're", 
+        "they're", "i'd", "you'd", 
+        "he'd", "we'd", "they'd", 
+        "that's","it's", "how's", 
+        "what's", "where's", "who's", 
+        "i've", "you've", "we've", 
+        "they've", "won't", "didn't", 
+        "wasn't", "doesn't","don't", 
+        "couldn't", "can't", "aren't", 
+        "isn't", "musn't", "let's",
+        "hadn't", "haven't", "hasn't",
+        "there's", "there're"]
 
-filename = "../db/test1"
+filename = "../db/la010189"
 with open (filename, "r") as f:
-    data_lines=f.readlines()
+    #data_lines=f.readlines()
+    data=f.read().lower()
 # Remove '\n' using strip
-data = ' '.join(map(str.strip, data_lines))
-data = data.lower() # from uppercase to lowercase
+#data = ' '.join(map(str.strip, data_lines))
+#data = data.lower() # from uppercase to lowercase
+
 
 # Updating some terms irregular like "it's", "i'll" ...
-data = ' '.join(map(lambda x:terms_to_update[x] if x in terms_to_update else x,
-                data.split()))
+#data = ' '.join(map(lambda x:terms_to_update[x] if x in terms_to_update else x,
+#                data.split()))
+
+for t in terms_to_remove: # for removing single quote in words
+    data = data.replace(t, "!"*len(t)) # like "i'm" => "i am". These are kind of stopwords
 
 vocabs = {}
 for start, end in WhitespaceTokenizer().span_tokenize(data):
     length = end - start
     term = str(buffer(data, start, length)) # We do not use data[start:end] 
                                             #because, it uses memory each time
-    term = term.replace('.', '') # we do this because of abbreviation like U.S.
+    term = term.replace('.', '!') # we do this because of abbreviation like U.S.
 
     if regexp.search(term): # we get terms intersting to us (not numbers, date ..)
         term = "".join(toker.tokenize(term)) # we remove punctuations
-        if term not in stop:
+        # instead of term != "", we can write len(term)<2 in the line below???
+        if term not in stop and term != "": # before tokenizer, term would be '"!!!!!' so output would be ""
             term = str(stemmer.stem(term)) # output of stemmer.stem(term) is u'string
             if term not in vocabs:
                 vocabs[term]=[]
             vocabs[term].append(str(start)) # we add positon information at the end of list
 
-print(vocabs)
+output = open("frequencies.csv", "w")
+output.write( "\n".join(map(lambda x: x+";"+str(len(vocabs[x])), vocabs.keys()) ) )
