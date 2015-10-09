@@ -4,8 +4,8 @@ from nltk.tokenize import WhitespaceTokenizer
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
-import matplotlib.pyplot as plt
 import os
+import json
 
 """Steps to Do:
 1- To read a whole file into a variable
@@ -73,7 +73,7 @@ terms_to_remove = ["i'll", "you'll", "he'll",
 
 
 vocabs = {}
-path = "/home/nejat/0INSA/0_5IF/PdC/1/db/latimes"
+path = "/home/denis/latimes"
 #path = "/home/nejat/0INSA/0_5IF/PdC/1/db/deneme_test"
 
 counter=0
@@ -104,7 +104,7 @@ for filename in os.listdir(path):
         if regexp.search(term): # we get terms intersting to us (not numbers, date ..)
             term = "".join(toker.tokenize(term)) # we remove punctuations
             # instead of term != "", we can write len(term)<2 in the line below???
-            if term not in stop and term != "": # before tokenizer, term would be '"!!!!!' so output would be ""
+            if term not in stop and len(term)<2: # before tokenizer, term would be '"!!!!!' so output would be ""
                 term = str(stemmer.stem(term)) # output of stemmer.stem(term) is u'string
                 if term not in vocabs:
                     vocabs[term]=[]
@@ -113,19 +113,15 @@ for filename in os.listdir(path):
 #output = open("frequencies.csv", "w")
 #output.write( "\n".join(map(lambda x: x+";"+str(len(vocabs[x])), vocabs.keys()) ) )
 
-a=map(lambda x:  (x,len(vocabs[x])), vocabs.keys())
+a=map(lambda x: (x,len(vocabs[x])), vocabs.keys())
 #print(a)
 
 sorted_vocabs = sorted(a, key=lambda x: x[1], reverse=True)
 #print(sorted_vocabs)
 
+with open('pdc01.json','w') as json_out:
+    json.dump(vocabs,json_out)
+
 output = open("frequencies.csv", "w")
-output.write( "\n".join(map(lambda x: x[0]+","+str(x[1]), sorted_vocabs) ) )
+output.writelines(map(lambda x: x[0]+","+str(x[1])+'\n', sorted_vocabs))
 output.close()
-
-#frequencies = map(lambda x: x[1], sorted_vocabs)
-#plt.loglog()
-#plt.plot(frequencies)
-
-#plt.ylabel('frequence du mot')
-#plt.show()
