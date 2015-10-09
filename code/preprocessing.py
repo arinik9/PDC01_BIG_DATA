@@ -4,6 +4,8 @@ from nltk.tokenize import WhitespaceTokenizer
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
+import matplotlib.pyplot as plt
+import os
 
 """Steps to Do:
 1- To read a whole file into a variable
@@ -69,10 +71,18 @@ terms_to_remove = ["i'll", "you'll", "he'll",
         "hadn't", "haven't", "hasn't",
         "there's", "there're"]
 
-filename = "../db/la010189"
-with open (filename, "r") as f:
-    #data_lines=f.readlines()
-    data=f.read().lower()
+
+vocabs = {}
+path = "/home/nejat/0INSA/0_5IF/PdC/1/db/latimes"
+#path = "/home/nejat/0INSA/0_5IF/PdC/1/db/deneme_test"
+
+counter=0
+for filename in os.listdir(path):
+    counter=counter+1
+    print("now: ", counter, " -- ",filename)
+    with open (path+"/"+filename, "r") as f:
+        # data_lines=f.readlines()
+        data=f.read().lower()
 # Remove '\n' using strip
 #data = ' '.join(map(str.strip, data_lines))
 #data = data.lower() # from uppercase to lowercase
@@ -82,24 +92,40 @@ with open (filename, "r") as f:
 #data = ' '.join(map(lambda x:terms_to_update[x] if x in terms_to_update else x,
 #                data.split()))
 
-for t in terms_to_remove: # for removing single quote in words
-    data = data.replace(t, "!"*len(t)) # like "i'm" => "i am". These are kind of stopwords
+    for t in terms_to_remove: # for removing single quote in words
+        data = data.replace(t, "!"*len(t)) # like "i'm" => "i am". These are kind of stopwords
 
-vocabs = {}
-for start, end in WhitespaceTokenizer().span_tokenize(data):
-    length = end - start
-    term = str(buffer(data, start, length)) # We do not use data[start:end] 
-                                            #because, it uses memory each time
-    term = term.replace('.', '!') # we do this because of abbreviation like U.S.
+    for start, end in WhitespaceTokenizer().span_tokenize(data):
+        length = end - start
+        term = str(buffer(data, start, length)) # We do not use data[start:end] 
+                                                #because, it uses memory each time
+        term = term.replace('.', '!') # we do this because of abbreviation like U.S.
 
-    if regexp.search(term): # we get terms intersting to us (not numbers, date ..)
-        term = "".join(toker.tokenize(term)) # we remove punctuations
-        # instead of term != "", we can write len(term)<2 in the line below???
-        if term not in stop and term != "": # before tokenizer, term would be '"!!!!!' so output would be ""
-            term = str(stemmer.stem(term)) # output of stemmer.stem(term) is u'string
-            if term not in vocabs:
-                vocabs[term]=[]
-            vocabs[term].append(str(start)) # we add positon information at the end of list
+        if regexp.search(term): # we get terms intersting to us (not numbers, date ..)
+            term = "".join(toker.tokenize(term)) # we remove punctuations
+            # instead of term != "", we can write len(term)<2 in the line below???
+            if term not in stop and term != "": # before tokenizer, term would be '"!!!!!' so output would be ""
+                term = str(stemmer.stem(term)) # output of stemmer.stem(term) is u'string
+                if term not in vocabs:
+                    vocabs[term]=[]
+                vocabs[term].append(str(start)) # we add positon information at the end of list
+
+#output = open("frequencies.csv", "w")
+#output.write( "\n".join(map(lambda x: x+";"+str(len(vocabs[x])), vocabs.keys()) ) )
+
+a=map(lambda x:  (x,len(vocabs[x])), vocabs.keys())
+#print(a)
+
+sorted_vocabs = sorted(a, key=lambda x: x[1], reverse=True)
+#print(sorted_vocabs)
 
 output = open("frequencies.csv", "w")
-output.write( "\n".join(map(lambda x: x+";"+str(len(vocabs[x])), vocabs.keys()) ) )
+output.write( "\n".join(map(lambda x: x[0]+","+str(x[1]), sorted_vocabs) ) )
+output.close()
+
+#frequencies = map(lambda x: x[1], sorted_vocabs)
+#plt.loglog()
+#plt.plot(frequencies)
+
+#plt.ylabel('frequence du mot')
+#plt.show()
