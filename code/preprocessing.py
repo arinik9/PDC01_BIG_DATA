@@ -57,17 +57,17 @@ def main():
 
     # we determine the terms that we'll meet some problem
     terms_to_remove = ["i'll", "you'll", "he'll",
-            "she'll", "it'll", "we'll", 
-            "they'll", "i'm", "you're", 
-            "he's", "she's", "we're", 
-            "they're", "i'd", "you'd", 
-            "he'd", "we'd", "they'd", 
-            "that's","it's", "how's", 
-            "what's", "where's", "who's", 
-            "i've", "you've", "we've", 
-            "they've", "won't", "didn't", 
-            "wasn't", "doesn't","don't", 
-            "couldn't", "can't", "aren't", 
+            "she'll", "it'll", "we'll",
+            "they'll", "i'm", "you're",
+            "he's", "she's", "we're",
+            "they're", "i'd", "you'd",
+            "he'd", "we'd", "they'd",
+            "that's","it's", "how's",
+            "what's", "where's", "who's",
+            "i've", "you've", "we've",
+            "they've", "won't", "didn't",
+            "wasn't", "doesn't","don't",
+            "couldn't", "can't", "aren't",
             "isn't", "musn't", "let's",
             "hadn't", "haven't", "hasn't",
             "there's", "there're"]
@@ -75,7 +75,8 @@ def main():
 
     path_dir = sys.argv[1]
     # check if path_dir is a directory (either local path or global path)
-    if not(os.path.isdir(path_dir)) and not(os.path.isdir(os.getcwd()+"/"+path_dir)):
+    if not(os.path.isdir(path_dir)) and not(
+            os.path.isdir(os.path.join(os.getcwd(),path_dir))):
         return 0
     counter=0
     for filename in sorted(os.listdir(path_dir)):
@@ -89,7 +90,7 @@ def main():
 
         for start, end in WhitespaceTokenizer().span_tokenize(data):
             length = end - start
-            term = str(buffer(data, start, length)) # We do not use data[start:end] 
+            term = str(buffer(data, start, length)) # We do not use data[start:end]
                                                     #because, it uses memory each time
             term = term.replace('.', '!') # we do this because of abbreviation like U.S.
 
@@ -105,7 +106,7 @@ def main():
         # For now, we dont care about term offsets in the doc_id
         # c++ program catch this infos by doing "std::cin"
         for term, pos in vocabs.iteritems():
-            output=term+","+str(counter)+","+filename+","+str(len(pos))
+            output=','.join([term, str(counter), filename, str(len(pos))])
             print(output)
 
 
