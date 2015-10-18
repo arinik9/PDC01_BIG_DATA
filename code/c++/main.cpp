@@ -32,7 +32,6 @@ document* strToDoc(string str, string &tokenName){
     doc->id = atoi(v[1].c_str());
     doc->name = v[2];
     doc->frequency = atoi(v[3].c_str());
-    doc->next = NULL;
     return doc;
 }
 
@@ -45,8 +44,8 @@ int main(int argc, char** argv) {
         cout << in <<endl;
         string tokenName;
         document* doc = strToDoc(in, tokenName);
-        if (!hashy.addToken(tokenName, doc)){
-            hashy.addDocument(tokenName, doc);
+        if (!hashy.addToken(tokenName, *doc)){
+            hashy.addDocument(tokenName, *doc);
             //cout << doc->name << endl;
         }
     }

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "hasht.h"
 
 using namespace std;
@@ -20,7 +21,7 @@ int hasht::hash(string key){
     }
     return index;
 }
-bool hasht::addToken(string name, document* doc){
+bool hasht::addToken(string name, document doc){
     token* existingToken = findToken(name);
     if (existingToken != NULL) {
         //Token already exists
@@ -30,7 +31,7 @@ bool hasht::addToken(string name, document* doc){
     if(HashTable[index] == NULL){
         HashTable[index] = new token;
         HashTable[index]->name = name;
-        HashTable[index]->doc = doc;
+        HashTable[index]->docs.push_back(doc);
         HashTable[index]->next = NULL;
         HashTable[index]->prev = NULL;
     }
@@ -38,7 +39,7 @@ bool hasht::addToken(string name, document* doc){
         token* ptr = HashTable[index];
         token* n = new token;
         n->name = name;
-        n->doc = doc;
+        n->docs.push_back(doc);
         n->next = NULL;
         n->prev = NULL;
         while(ptr->next != NULL){
@@ -49,20 +50,16 @@ bool hasht::addToken(string name, document* doc){
     }
     return true;
 }
-bool hasht::addDocument(string tokenName, document* doc){
+bool hasht::addDocument(string tokenName, document doc){
     token* existingToken = findToken(tokenName);
     if (existingToken == NULL) {
         //Token does not exist
         return false;
     }
-    if (findDocument(doc->id, tokenName) != NULL){
+    if (findDocument(doc.id, tokenName) != NULL){
         return false;
     }
-    document* iter = existingToken->doc;
-    while (iter->next != NULL){
-        iter=iter->next;
-    }
-    iter->next=doc;
+    existingToken->docs.push_back(doc);
 
 }
 int hasht::numberOftokensInIndex(int index){
@@ -95,15 +92,12 @@ document* hasht::findDocument(int id, string myToken){
         //token does not exist in table
         return NULL;
     }
-    document* doc = ptr->doc;
-    while (doc != NULL){
-        if(doc->id == id){
-            //document exists in specified token
-            return doc;
+    for(vector<document>::iterator it = ptr->docs.begin();
+            it != ptr->docs.end(); it++){
+        if (it->id == id){
+            return &(*it);
         }
-        doc = doc->next;
     }
-    //token exists but not in specified document
     return NULL;
 }
 bool hasht::removeToken(string name){
