@@ -34,6 +34,7 @@ public:
     document* findDocument(int id, std::string token);
     token* findToken(std::string name);
     bool removeToken(std::string name);
+    bool saveOnFile(std::string path);
 };
 
 #endif	/* HASHT_H */

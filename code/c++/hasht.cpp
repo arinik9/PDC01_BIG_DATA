@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include "hasht.h"
 
@@ -117,4 +118,40 @@ bool hasht::removeToken(string name){
     delPtr->prev->next = delPtr->next;
     delete delPtr;
     return true;
+}
+
+bool hasht::saveOnFile(std::string path)
+{
+    ofstream ofs(path.c_str(),ios::binary);
+    
+    if(!ofs.is_open())return false;
+
+    int sizeTable = this->tableSize;
+
+    //write table size
+    ofs.write((const char *)&sizeTable,sizeof(sizeTable));
+
+    for (int i = 0; i < sizeTable; i++)
+    {
+        if(HashTable[i] != NULL)
+        {
+            //write index
+            ofs.write((const char *)&i,sizeof(i));
+            
+            //write nb of tokens
+            int nbToken = 0;
+            token* iter = HashTable[i];
+            while(iter != NULL){
+               nbToken++;
+            }
+            ofs.write((const char *)&nbToken,sizeof(nbToken));
+
+            //write tokens
+            iter = HashTable[i];        
+            while(iter != NULL){
+                ofs.write((const char *)iter,sizeof(iter));
+                iter = iter->next;
+            }
+        }
+    }
 }
