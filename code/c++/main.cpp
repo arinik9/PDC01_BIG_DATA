@@ -19,7 +19,7 @@ document* strToDoc(string str, string &tokenName){
     vector<string> v;
     std::stringstream ss(str);
     std::string item;
-    while (std::getline(ss, item, ',')) {
+    while (std::getline(ss, item, ' ')) {
         v.push_back(item);
     }
     if (v.size() != STR_SIZE){

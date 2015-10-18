@@ -106,7 +106,7 @@ def main():
         # For now, we dont care about term offsets in the doc_id
         # c++ program catch this infos by doing "std::cin"
         for term, pos in vocabs.iteritems():
-            output=','.join([term, str(counter), filename, str(len(pos))])
+            output=' '.join([term, str(counter), filename, str(len(pos))])
             print(output)
 
 
