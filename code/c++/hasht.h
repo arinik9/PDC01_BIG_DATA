@@ -27,13 +27,13 @@ private:
    token* HashTable[tableSize];
 public:
     hasht();
-    int Hash(std::string key);
-    bool AddToken(std::string name, document* doc);
-    bool AddDocument(std::string tokenName, document* doc);
-    int NumberOftokensInIndex(int index);
-    document* FindDocument(int id, std::string token);
-    token* FindToken(std::string name);
-    bool RemoveToken(std::string name);
+    int hash(std::string key);
+    bool addToken(std::string name, document* doc);
+    bool addDocument(std::string tokenName, document* doc);
+    int numberOftokensInIndex(int index);
+    document* findDocument(int id, std::string token);
+    token* findToken(std::string name);
+    bool removeToken(std::string name);
 };
 
 #endif	/* HASHT_H */

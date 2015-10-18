@@ -8,7 +8,7 @@ hasht::hasht(){
         HashTable[i] = NULL;
     }
 }
-int hasht::Hash(string key){
+int hasht::hash(string key){
     int index;
     unsigned int hash=0;
     for(int i = 0; i<key.length();i++){
@@ -20,13 +20,13 @@ int hasht::Hash(string key){
     }
     return index;
 }
-bool hasht::AddToken(string name, document* doc){
-    token* existingToken = FindToken(name);
+bool hasht::addToken(string name, document* doc){
+    token* existingToken = findToken(name);
     if (existingToken != NULL) {
         //Token already exists
         return false;
     }
-    int index = Hash(name);
+    int index = hash(name);
     if(HashTable[index] == NULL){
         HashTable[index] = new token;
         HashTable[index]->name = name;
@@ -49,10 +49,13 @@ bool hasht::AddToken(string name, document* doc){
     }
     return true;
 }
-bool hasht::AddDocument(string tokenName, document* doc){
-    token* existingToken = FindToken(tokenName);
+bool hasht::addDocument(string tokenName, document* doc){
+    token* existingToken = findToken(tokenName);
     if (existingToken == NULL) {
         //Token does not exist
+        return false;
+    }
+    if (findDocument(doc->id, tokenName) != NULL){
         return false;
     }
     document* iter = existingToken->doc;
@@ -62,7 +65,7 @@ bool hasht::AddDocument(string tokenName, document* doc){
     iter->next=doc;
 
 }
-int hasht::NumberOftokensInIndex(int index){
+int hasht::numberOftokensInIndex(int index){
     int count = 0;
     if(HashTable[index] == NULL){
         return count;
@@ -75,8 +78,8 @@ int hasht::NumberOftokensInIndex(int index){
     }
     return count;
 }
-token* hasht::FindToken(string name){
-    int index = Hash(name);
+token* hasht::findToken(string name){
+    int index = hash(name);
     token* iter = HashTable[index];
     while (iter != NULL){
         if (iter->name == name){
@@ -86,8 +89,8 @@ token* hasht::FindToken(string name){
     }
     return iter;
 }
-document* hasht::FindDocument(int id, string myToken){
-    token* ptr = FindToken(myToken);
+document* hasht::findDocument(int id, string myToken){
+    token* ptr = findToken(myToken);
     if (ptr == NULL){
         //token does not exist in table
         return NULL;
@@ -103,8 +106,8 @@ document* hasht::FindDocument(int id, string myToken){
     //token exists but not in specified document
     return NULL;
 }
-bool hasht::RemoveToken(string name){
-    token* delPtr = FindToken(name);
+bool hasht::removeToken(string name){
+    token* delPtr = findToken(name);
     token* p1;
     token* p2;
     if (delPtr == NULL){
@@ -112,7 +115,7 @@ bool hasht::RemoveToken(string name){
     }
     if (delPtr->prev == NULL){
         //worst case scenario, we need to get hash again
-        int index = Hash(name);
+        int index = hash(name);
         HashTable[index] = delPtr->next;
         delete delPtr;
         return true;
