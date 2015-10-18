@@ -5,7 +5,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
 import os
-import json
+import sys
 
 """Steps to Do:
 1- To read a whole file into a variable
@@ -49,79 +49,64 @@ Example:
 We can easily obtain frequency of terms by len() function: len(vocabs["edit"])
 """
 
-regexp=re.compile('^["a-z]+[a-z0-9.?,;"!\')(]*$')
-toker = RegexpTokenizer(r'((?<=[^\w\s])\w(?=[^\w\s])|(\W))+', gaps=True)
-stemmer = PorterStemmer()
-stop = stopwords.words('english')
+def main():
+    regexp=re.compile('^["a-z]+[a-z0-9.?,;"!\')(]*$')
+    toker = RegexpTokenizer(r'((?<=[^\w\s])\w(?=[^\w\s])|(\W))+', gaps=True)
+    stemmer = PorterStemmer()
+    stop = stopwords.words('english')
 
-# we determine the terms that we'll meet some problem
-terms_to_remove = ["i'll", "you'll", "he'll",
-        "she'll", "it'll", "we'll", 
-        "they'll", "i'm", "you're", 
-        "he's", "she's", "we're", 
-        "they're", "i'd", "you'd", 
-        "he'd", "we'd", "they'd", 
-        "that's","it's", "how's", 
-        "what's", "where's", "who's", 
-        "i've", "you've", "we've", 
-        "they've", "won't", "didn't", 
-        "wasn't", "doesn't","don't", 
-        "couldn't", "can't", "aren't", 
-        "isn't", "musn't", "let's",
-        "hadn't", "haven't", "hasn't",
-        "there's", "there're"]
-
-
-vocabs = {}
-path = "/home/denis/latimes"
-#path = "/home/nejat/0INSA/0_5IF/PdC/1/db/deneme_test"
-
-counter=0
-for filename in os.listdir(path):
-    counter=counter+1
-    print("now: ", counter, " -- ",filename)
-    with open (path+"/"+filename, "r") as f:
-        # data_lines=f.readlines()
-        data=f.read().lower()
-# Remove '\n' using strip
-#data = ' '.join(map(str.strip, data_lines))
-#data = data.lower() # from uppercase to lowercase
+    # we determine the terms that we'll meet some problem
+    terms_to_remove = ["i'll", "you'll", "he'll",
+            "she'll", "it'll", "we'll", 
+            "they'll", "i'm", "you're", 
+            "he's", "she's", "we're", 
+            "they're", "i'd", "you'd", 
+            "he'd", "we'd", "they'd", 
+            "that's","it's", "how's", 
+            "what's", "where's", "who's", 
+            "i've", "you've", "we've", 
+            "they've", "won't", "didn't", 
+            "wasn't", "doesn't","don't", 
+            "couldn't", "can't", "aren't", 
+            "isn't", "musn't", "let's",
+            "hadn't", "haven't", "hasn't",
+            "there's", "there're"]
 
 
-# Updating some terms irregular like "it's", "i'll" ...
-#data = ' '.join(map(lambda x:terms_to_update[x] if x in terms_to_update else x,
-#                data.split()))
+    path_dir = sys.argv[1]
+    # check if path_dir is a directory (either local path or global path)
+    if not(os.path.isdir(path_dir)) and not(os.path.isdir(os.getcwd()+"/"+path_dir)):
+        return 0
+    counter=0
+    for filename in sorted(os.listdir(path_dir)):
+        counter=counter+1
+        vocabs = {}
+        with open (path_dir+"/"+filename, "r") as f:
+            data=f.read().lower()
 
-    for t in terms_to_remove: # for removing single quote in words
-        data = data.replace(t, "!"*len(t)) # like "i'm" => "i am". These are kind of stopwords
+        for t in terms_to_remove: # for removing single quote in words
+            data = data.replace(t, "!"*len(t)) # like "i'm" => "i am". These are kind of stopwords
 
-    for start, end in WhitespaceTokenizer().span_tokenize(data):
-        length = end - start
-        term = str(buffer(data, start, length)) # We do not use data[start:end] 
-                                                #because, it uses memory each time
-        term = term.replace('.', '!') # we do this because of abbreviation like U.S.
+        for start, end in WhitespaceTokenizer().span_tokenize(data):
+            length = end - start
+            term = str(buffer(data, start, length)) # We do not use data[start:end] 
+                                                    #because, it uses memory each time
+            term = term.replace('.', '!') # we do this because of abbreviation like U.S.
 
-        if regexp.search(term): # we get terms intersting to us (not numbers, date ..)
-            term = "".join(toker.tokenize(term)) # we remove punctuations
-            # instead of term != "", we can write len(term)<2 in the line below???
-            if term not in stop and len(term)<2: # before tokenizer, term would be '"!!!!!' so output would be ""
-                term = str(stemmer.stem(term)) # output of stemmer.stem(term) is u'string
-                if term not in vocabs:
-                    vocabs[term]=[]
-                vocabs[term].append(str(start)) # we add positon information at the end of list
+            if regexp.search(term): # we get terms intersting to us (not numbers, date ..)
+                term = "".join(toker.tokenize(term)) # we remove punctuations
+                if term not in stop and len(term)>2: # before tokenizer, term would be '"!!!!!' so output would be ""
+                    term = str(stemmer.stem(term)) # output of stemmer.stem(term) is u'string
+                    if term not in vocabs:
+                        vocabs[term]=[]
+                    vocabs[term].append(str(start)) # we add positon information at the end of list
 
-#output = open("frequencies.csv", "w")
-#output.write( "\n".join(map(lambda x: x+";"+str(len(vocabs[x])), vocabs.keys()) ) )
+        # we're sending to c++ program in this form: (term name, doc_id, filename, term frequency in doc_id)
+        # For now, we dont care about term offsets in the doc_id
+        # c++ program catch this infos by doing "std::cin"
+        for term, pos in vocabs.iteritems():
+            output=term+","+str(counter)+","+filename+","+str(len(pos))
+            print(output)
 
-a=map(lambda x: (x,len(vocabs[x])), vocabs.keys())
-#print(a)
 
-sorted_vocabs = sorted(a, key=lambda x: x[1], reverse=True)
-#print(sorted_vocabs)
-
-with open('pdc01.json','w') as json_out:
-    json.dump(vocabs,json_out)
-
-output = open("frequencies.csv", "w")
-output.writelines(map(lambda x: x[0]+","+str(x[1])+'\n', sorted_vocabs))
-output.close()
+main()
