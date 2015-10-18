@@ -23,7 +23,7 @@ struct token{
 
 class hasht{
 private:
-   static const int tableSize = 4;
+   static const int tableSize = 500;
    token* HashTable[tableSize];
 public:
     hasht();
@@ -34,6 +34,8 @@ public:
     document* findDocument(int id, std::string token);
     token* findToken(std::string name);
     bool removeToken(std::string name);
+    void displayHashTable();
+    bool initializeHashTable();
 };
 
 #endif	/* HASHT_H */

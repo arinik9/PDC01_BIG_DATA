@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
         string in;
         if(!getline(std::cin, in))
             break;
-        cout << in <<endl;
+        //cout << in <<endl;
         string tokenName;
         document* doc = strToDoc(in, tokenName);
         if (!hashy.addToken(tokenName, doc)){
@@ -50,5 +50,16 @@ int main(int argc, char** argv) {
             //cout << doc->name << endl;
         }
     }
+
+    hashy.displayHashTable();
+    // hash("fallout") = hash("part") = 331
+    // trying removing consecutif token in the same index
+    hashy.removeToken("fallout");
+    hashy.displayHashTable();
+    hashy.removeToken("part");
+    hashy.displayHashTable();
+    //reset all data in the hash table
+    cout << "initialized? = " << hashy.initializeHashTable() << endl;
+    hashy.displayHashTable();
     return 0;
 }

@@ -113,14 +113,58 @@ bool hasht::removeToken(string name){
     if (delPtr == NULL){
         return false;
     }
-    if (delPtr->prev == NULL){
+
+    p2 = delPtr->next;
+    p1 = delPtr->prev;
+    if (p1 == NULL){
         //worst case scenario, we need to get hash again
+        cout << "p1 NULL" << endl;
         int index = hash(name);
-        HashTable[index] = delPtr->next;
+        HashTable[index] = p2;
+        if(p2 != NULL)
+            p2->prev = NULL;
         delete delPtr;
         return true;
     }
-    delPtr->prev->next = delPtr->next;
+    else if(p2 == NULL){
+        //delPtr is found at the end
+        cout << "p2 NULL" << endl;
+        p1->next = NULL;
+        delete delPtr;
+        return true;
+    }
+    p1->next = p2;
+    p2->prev = p1;
     delete delPtr;
+    return true;
+}
+void hasht::displayHashTable(){
+    for(int index=0; index<tableSize; index++){
+        if(HashTable[index]!=NULL){
+            token*  iter = HashTable[index];
+            cout << "index: " << index << endl;
+            while(iter!=NULL){
+                cout << "     token name: " << iter->name << endl;
+                document* doct = iter->doc;
+                while(doct != NULL){
+                    cout << "        doc id: " <<  doct->id << ", term freq: " << 
+                        doct->frequency << endl;
+                    doct = doct->next;
+                }
+                iter = iter->next;
+            }
+        }
+    }
+}
+bool hasht::initializeHashTable(){
+    for(int index=0; index<tableSize; index++){
+        if(HashTable[index]!=NULL){
+            token* iter = HashTable[index];
+            while(iter != NULL){
+                removeToken(iter->name);
+                iter = HashTable[index];
+            }
+        }
+    }
     return true;
 }
