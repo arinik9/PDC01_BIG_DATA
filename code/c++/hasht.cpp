@@ -143,7 +143,8 @@ bool hasht::saveOnFile(std::string path)
             token* iter = HashTable[i];
             while(iter != NULL){
                nbToken++;
-            }
+               iter = iter->next;
+                           }
             ofs.write((const char *)&nbToken,sizeof(nbToken));
 
             //write tokens
