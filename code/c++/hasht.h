@@ -17,6 +17,7 @@ struct document{
 struct token{
    token* prev;
    std::string name;
+   int index;
    document * doc;
    token* next;
 };
