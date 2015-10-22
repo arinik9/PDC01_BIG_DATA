@@ -10,30 +10,35 @@
 #define	HASHT_H
 struct document{
    int id;
-   std::string name;
    document * next;
    int frequency;
 };
 struct token{
-   token* prev;
-   std::string name;
    int index;
+   std::string name;
    document * doc;
-   token* next;
+};
+struct hashToken{
+   hashToken* prev;
+   hashToken* next;
+   token* t;
+
 };
 
 class hasht{
 private:
    static const int tableSize = 500;
-   token* HashTable[tableSize];
+   int count;
+   hashToken* HashTable[tableSize];
 public:
     hasht();
     int hash(std::string key);
-    bool addToken(std::string name, document* doc);
+    bool addToken(std::string name);
     bool addDocument(std::string tokenName, document* doc);
     int numberOftokensInIndex(int index);
     document* findDocument(int id, std::string token);
     token* findToken(std::string name);
+    hashToken* findParentToken(std::string name);
     bool removeToken(std::string name);
     void displayHashTable();
     bool initializeHashTable();

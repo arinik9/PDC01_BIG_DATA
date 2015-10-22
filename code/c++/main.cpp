@@ -4,7 +4,7 @@
 *
 * Created on 10 octobre 2015, 19:44
 */
-#define STR_SIZE 4
+#define STR_SIZE 3
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -30,8 +30,7 @@ document* strToDoc(string str, string &tokenName){
     tokenName = v[0];
     document* doc = new document;
     doc->id = atoi(v[1].c_str());
-    doc->name = v[2];
-    doc->frequency = atoi(v[3].c_str());
+    doc->frequency = atoi(v[2].c_str());
     doc->next = NULL;
     return doc;
 }
@@ -45,10 +44,9 @@ int main(int argc, char** argv) {
         //cout << in <<endl;
         string tokenName;
         document* doc = strToDoc(in, tokenName);
-        if (!hashy.addToken(tokenName, doc)){
-            hashy.addDocument(tokenName, doc);
+        hashy.addToken(tokenName);
+        hashy.addDocument(tokenName, doc);
             //cout << doc->name << endl;
-        }
     }
 
     hashy.displayHashTable();

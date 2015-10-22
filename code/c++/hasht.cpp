@@ -7,6 +7,7 @@ hasht::hasht(){
     {
         HashTable[i] = NULL;
     }
+    count = 0;
 }
 int hasht::hash(string key){
     int index;
@@ -20,7 +21,7 @@ int hasht::hash(string key){
     }
     return index;
 }
-bool hasht::addToken(string name, document* doc){
+bool hasht::addToken(string name){
     token* existingToken = findToken(name);
     if (existingToken != NULL) {
         //Token already exists
@@ -28,17 +29,19 @@ bool hasht::addToken(string name, document* doc){
     }
     int index = hash(name);
     if(HashTable[index] == NULL){
-        HashTable[index] = new token;
-        HashTable[index]->name = name;
-        HashTable[index]->doc = doc;
+        HashTable[index] = new hashToken;
+        HashTable[index]->t = new token;
+        HashTable[index]->t->name = name;
+        HashTable[index]->t->doc = NULL;
         HashTable[index]->next = NULL;
         HashTable[index]->prev = NULL;
     }
     else{
-        token* ptr = HashTable[index];
-        token* n = new token;
-        n->name = name;
-        n->doc = doc;
+        hashToken* ptr = HashTable[index];
+        hashToken* n = new hashToken;
+        n->t = new token;
+        n->t->name = name;
+        n->t->doc = NULL;
         n->next = NULL;
         n->prev = NULL;
         while(ptr->next != NULL){
@@ -59,10 +62,15 @@ bool hasht::addDocument(string tokenName, document* doc){
         return false;
     }
     document* iter = existingToken->doc;
+    if (iter == NULL){
+        existingToken->doc = doc;
+        return true;
+    }
     while (iter->next != NULL){
         iter=iter->next;
     }
     iter->next=doc;
+    return true;
 
 }
 int hasht::numberOftokensInIndex(int index){
@@ -71,7 +79,7 @@ int hasht::numberOftokensInIndex(int index){
         return count;
     }
     count++;
-    token* iter=HashTable[index];
+    hashToken* iter=HashTable[index];
     while(iter->next != NULL){
         count++;
         iter = iter->next;
@@ -80,9 +88,23 @@ int hasht::numberOftokensInIndex(int index){
 }
 token* hasht::findToken(string name){
     int index = hash(name);
-    token* iter = HashTable[index];
+    hashToken* iter = HashTable[index];
     while (iter != NULL){
-        if (iter->name == name){
+        if (iter->t->name == name){
+            break;
+        }
+        iter = iter->next;
+    }
+    if (iter == NULL) {
+        return NULL;
+    }
+    return iter->t;
+}
+hashToken* hasht::findParentToken(string name){
+    int index = hash(name);
+    hashToken* iter = HashTable[index];
+    while (iter != NULL){
+        if (iter->t->name == name){
             break;
         }
         iter = iter->next;
@@ -107,13 +129,12 @@ document* hasht::findDocument(int id, string myToken){
     return NULL;
 }
 bool hasht::removeToken(string name){
-    token* delPtr = findToken(name);
-    token* p1;
-    token* p2;
+    hashToken* delPtr = findParentToken(name);
+    hashToken* p1;
+    hashToken* p2;
     if (delPtr == NULL){
         return false;
     }
-
     p2 = delPtr->next;
     p1 = delPtr->prev;
     if (p1 == NULL){
@@ -123,6 +144,7 @@ bool hasht::removeToken(string name){
         HashTable[index] = p2;
         if(p2 != NULL)
             p2->prev = NULL;
+        delete delPtr->t;
         delete delPtr;
         return true;
     }
@@ -130,22 +152,24 @@ bool hasht::removeToken(string name){
         //delPtr is found at the end
         cout << "p2 NULL" << endl;
         p1->next = NULL;
+        delete delPtr->t;
         delete delPtr;
         return true;
     }
     p1->next = p2;
     p2->prev = p1;
+    delete delPtr->t;
     delete delPtr;
     return true;
 }
 void hasht::displayHashTable(){
     for(int index=0; index<tableSize; index++){
         if(HashTable[index]!=NULL){
-            token*  iter = HashTable[index];
+            hashToken*  iter = HashTable[index];
             cout << "index: " << index << endl;
             while(iter!=NULL){
-                cout << "     token name: " << iter->name << endl;
-                document* doct = iter->doc;
+                cout << "     token name: " << iter->t->name << endl;
+                document* doct = iter->t->doc;
                 while(doct != NULL){
                     cout << "        doc id: " <<  doct->id << ", term freq: " << 
                         doct->frequency << endl;
@@ -159,9 +183,9 @@ void hasht::displayHashTable(){
 bool hasht::initializeHashTable(){
     for(int index=0; index<tableSize; index++){
         if(HashTable[index]!=NULL){
-            token* iter = HashTable[index];
+            hashToken* iter = HashTable[index];
             while(iter != NULL){
-                removeToken(iter->name);
+                removeToken(iter->t->name);
                 iter = HashTable[index];
             }
         }
