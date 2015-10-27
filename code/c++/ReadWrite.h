@@ -4,23 +4,6 @@
 #ifndef READWRITE_H_
 #define READWRITE_H_
 
-
-struct document{
-    int id;
-    int frequency;
-    document* next;
-};
-struct token{
-    int id;
-    std::string name;
-    document* doc;
-};
-
-struct tokenList{
-    token* t;
-    tokenList* next;
-};
-
 class ReadWrite {
 private:
     std::ifstream fromFile;

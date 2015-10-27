@@ -1,3 +1,4 @@
+#include "dataStructure.h"
 #include "ReadWrite.h"
 
 ReadWrite::ReadWrite(std::string filename):toFile(filename.c_str(), std::ios::binary) {
@@ -30,16 +31,14 @@ void ReadWrite::addToken(token* newtoken){
         tokenList* prev_ptr=root;
         bool added=false;
         while(ptr != NULL){
-            if(t_list->t->id == ptr->t->id){//token already exists
+            if(t_list->t->index == ptr->t->index){//token already exists
                 added=true;
                 //token exists but it doesnt contain new doc.
                 //So just update the root doc address via newtoken
-                //t_list->t->doc = ptr->t->doc;
-    //std::cout << ptr->t->doc->id << ", "<< ptr->t->doc->frequency << std::endl;
                 ptr->t->doc =t_list->t->doc;
                 break;
             }
-            else if(t_list->t->id < ptr->t->id){//token doesn't exist.It is inserting now
+            else if(t_list->t->index < ptr->t->index){//token doesn't exist.It is inserting now
                 added=true;
                 if(ptr == root){
                     t_list->next=ptr;
@@ -63,7 +62,7 @@ void ReadWrite::addToken(token* newtoken){
 void ReadWrite::display(){
     tokenList* p = root;
 	while(p!=NULL){
-        std::cout << p->t->id << ", " << p->t->name << std::endl;
+        std::cout << p->t->index << ", " << p->t->name << std::endl;
         document* doc = p->t->doc;
         while(doc != NULL){
             std::cout << "\t" << doc->id << ", ";

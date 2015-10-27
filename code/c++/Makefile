@@ -3,8 +3,11 @@ DEBUG ?=
 
 all: main
 
-main: hasht.o main.cpp
+main: hasht.o ReadWrite.o main.cpp
 	$(CC) $(DEBUG) -o $@ $^
+
+ReadWrite.o: ReadWrite.cpp
+	$(CC) $(DEBUG) -c $^
 
 hasht.o: hasht.cpp
 	$(CC) $(DEBUG) -c $^

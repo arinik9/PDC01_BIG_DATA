@@ -8,22 +8,6 @@
 
 #ifndef HASHT_H
 #define	HASHT_H
-struct document{
-   int id;
-   document * next;
-   int frequency;
-};
-struct token{
-   int index;
-   std::string name;
-   document * doc;
-};
-struct hashToken{
-   hashToken* prev;
-   hashToken* next;
-   token* t;
-
-};
 
 class hasht{
 private:

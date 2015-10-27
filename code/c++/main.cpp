@@ -10,10 +10,13 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
-#include "hasht.h"
 #include <cstdlib>
+#include "dataStructure.h"
+#include "hasht.h"
+#include "ReadWrite.h"
 
 using namespace std;
+
 
 document* strToDoc(string str, string &tokenName){
     vector<string> v;
@@ -37,7 +40,10 @@ document* strToDoc(string str, string &tokenName){
 
 int main(int argc, char** argv) {
     hasht hashy;
+    ReadWrite rw;
+    int counter=0;
     while (true){
+        counter = counter + 1;
         string in;
         if(!getline(std::cin, in))
             break;
@@ -46,18 +52,13 @@ int main(int argc, char** argv) {
         document* doc = strToDoc(in, tokenName);
         hashy.addToken(tokenName);
         hashy.addDocument(tokenName, doc);
-            //cout << doc->name << endl;
+        token* newToken = hashy.findToken(tokenName);
+        rw.addToken(newToken);
     }
 
-    hashy.displayHashTable();
-    // hash("fallout") = hash("part") = 331
-    // trying removing consecutif token in the same index
-    hashy.removeToken("fallout");
-    hashy.displayHashTable();
-    hashy.removeToken("part");
-    hashy.displayHashTable();
-    //reset all data in the hash table
-    cout << "initialized? = " << hashy.initializeHashTable() << endl;
-    hashy.displayHashTable();
+    //rw.display();
+    //cout << endl;
+    //hashy.displayHashTable();
+
     return 0;
 }

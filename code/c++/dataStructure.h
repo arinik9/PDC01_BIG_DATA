@@ -1,16 +1,23 @@
+#include <iostream>
 
 struct document{
    int id;
-   int tf;
-   int idf;
+   int frequency;
+   document* next;
+   //int tf;
+   //int idf;
 };
 struct token{
    int index;
    std::string name;
    document * doc;
 };
-struct tokenHash{
+struct hashToken{
+   hashToken* prev;
+   hashToken* next;
    token* t;
-   tokenHash* next;
-   tokenHash* prev;
+};
+struct tokenList{
+  token* t;
+  tokenList* next;
 };

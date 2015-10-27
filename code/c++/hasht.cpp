@@ -1,4 +1,5 @@
 #include <iostream>
+#include "dataStructure.h"
 #include "hasht.h"
 
 using namespace std;
@@ -32,6 +33,7 @@ bool hasht::addToken(string name){
         HashTable[index] = new hashToken;
         HashTable[index]->t = new token;
         HashTable[index]->t->name = name;
+        HashTable[index]->t->index = index;
         HashTable[index]->t->doc = NULL;
         HashTable[index]->next = NULL;
         HashTable[index]->prev = NULL;
