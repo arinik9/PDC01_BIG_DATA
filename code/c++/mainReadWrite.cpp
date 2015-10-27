@@ -1,3 +1,10 @@
+/*
+* File: main.cpp
+* Author: Ghada
+*
+* Created on 10 octobre 2015, 19:44
+*/
+#define STR_SIZE 4
 #include <iostream>
 #include <string>
 #include "ReadWrite.h"
@@ -6,66 +13,106 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-   //Testing Read-Write functionality on binary files 
-    string filename="./test.bin";
+/*    std::string filename="./test.bin";
     ReadWrite rw(filename);
-    //createInvertedFileOnDisk() method writes an integer (in this example it is '2') to binary file 
-    //whose the name is given by 'filename' variable and reads an integer from the samefile
     rw.createInvertedFileOnDisk();
-    // output is '2'
+*/
 
-
-//Testing inserting and initializing functionality
-/*    ReadWrite rw;
+    ReadWrite rw;
     int token_id=8;
+    std::string token_name="edit";
     int doc_id=1;
-    int frequency=44;
-    rw.addToken(token_id, doc_id, frequency);
+    int frequency=6;
 
-    token_id=4;
-    doc_id=7;
-    frequency=22;
-    rw.addToken(token_id, doc_id, frequency);
+    // ************* //
+    token* newtoken = new token;
+    newtoken->id=token_id;
+    newtoken->name = token_name;
+    newtoken->doc = NULL;
 
-    token_id=4;
-    doc_id=1;
-    frequency=22;
-    rw.addToken(token_id, doc_id, frequency);
+    document* newdoc = new document;
+    newdoc->id=doc_id;
+    newdoc->frequency=frequency;
+    newdoc->next = NULL;
 
+    newtoken->doc = newdoc;
+
+    rw.addToken(newtoken);
+    // ********** //
+
+
+    // ********* //
+    token_id=8;
+    token_name="edit";
+    doc_id=4;
+    frequency=4;
+
+    newdoc = new document;
+    newdoc->id=doc_id;
+    newdoc->frequency=frequency;
+    newdoc->next = NULL;
+
+    document* headdoc=newtoken->doc;
+    headdoc->next = newdoc;
+
+    rw.addToken(newtoken);
+    // *******  //
+
+
+    // *******  //
     token_id=6;
-    doc_id=1;
-    frequency=22;
-    rw.addToken(token_id, doc_id, frequency);
+    token_name="computer";
+    doc_id=8;
+    frequency=4;
 
-    token_id=4;
-    doc_id=5;
-    frequency=22;
-    rw.addToken(token_id, doc_id, frequency);
+    token* newtoken2 = new token;
+    newtoken2->id=token_id;
+    newtoken2->name = token_name;
+    newtoken2->doc = NULL;
 
+    newdoc = new document;
+    newdoc->id=doc_id;
+    newdoc->frequency=frequency;
+    newdoc->next = NULL;
+
+    newtoken2->doc = newdoc;
+
+    rw.addToken(newtoken2);
+    // *******  //
+
+
+    // *******  //
     token_id=10;
-    doc_id=5;
-    frequency=22;
-    rw.addToken(token_id, doc_id, frequency);
+    token_name="dell";
+    doc_id=88;
+    frequency=2;
+
+    token* newtoken3 = new token;
+    newtoken3->id=token_id;
+    newtoken3->name = token_name;
+    newtoken3->doc = NULL;
+
+    newdoc = new document;
+    newdoc->id=doc_id;
+    newdoc->frequency=frequency;
+    newdoc->next = NULL;
+
+    newtoken3->doc = newdoc;
+
+    rw.addToken(newtoken3);
+    // *******  //
+
+    rw.display();
+
+    rw.removeFirstToken();
 
     rw.display();
 
     rw.initialize();
     rw.display();
-
     std::cout << "INITIALIZE" << std::endl;
 
-    token_id=4;
-    doc_id=5;
-    frequency=22;
-    rw.addToken(token_id, doc_id, frequency);
-
-    token_id=10;
-    doc_id=5;
-    frequency=22;
-    rw.addToken(token_id, doc_id, frequency);
-    rw.display();
-
     std::cout << "END" << std::endl;
-*/
+
     return 0;
 }

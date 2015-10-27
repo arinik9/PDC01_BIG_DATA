@@ -4,25 +4,31 @@
 #ifndef READWRITE_H_
 #define READWRITE_H_
 
-struct Token
-{
-    int token_id;
-    int doc_id;
+
+struct document{
+    int id;
     int frequency;
-    Token* next;
-    Token* prev;
+    document* next;
+};
+struct token{
+    int id;
+    std::string name;
+    document* doc;
 };
 
+struct tokenList{
+    token* t;
+    tokenList* next;
+};
 
 class ReadWrite {
 private:
     std::ifstream fromFile;
     std::ofstream toFile;
     std::string filename;
-    Token* root;
+    tokenList* root;
 public:
-
-	void addToken(int token_id, int doc_id, int frequency);
+	void addToken(token* newtoken);
     void removeFirstToken();
     void initialize();
     std::string getFilename();
