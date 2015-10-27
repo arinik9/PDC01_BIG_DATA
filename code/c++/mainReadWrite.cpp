@@ -40,7 +40,6 @@ int main(int argc, char** argv) {
     rw.addToken(newtoken);
     // ********** //
 
-
     // ********* //
     token_id=8;
     token_name="edit";
@@ -57,7 +56,6 @@ int main(int argc, char** argv) {
 
     rw.addToken(newtoken);
     // *******  //
-
 
     // *******  //
     token_id=6;
@@ -79,7 +77,6 @@ int main(int argc, char** argv) {
 
     rw.addToken(newtoken2);
     // *******  //
-
 
     // *******  //
     token_id=10;
