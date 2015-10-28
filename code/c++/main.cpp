@@ -70,9 +70,36 @@ int main(int argc, char** argv) {
         //Flush ReadWrite's chained list
         //cout << counter << endl;
         counter = 0;
-
-
     }
+    //merge
+    // finalindex = copyofindex0
+    /* for (i=1; i<nbofindex; i++){
+     *      currentindex = i;
+     *      finalIndex2 = new index;
+     *      token* iterFinal = rw.load(finalindex)
+     *      token* iterCurrent = rw.load(currentIndex)
+     *      while (iterFinal != NULL && iterCurrent != NULL){
+     *           if (iterFinal->index < iterCurrent->index ){
+     *               rw.write(iterFinal,finalIndex2)
+     *               iterFinal = rw.load(iterFinal->next)
+     *               continue
+     *           }
+     *           if (iterFinal->index > iterCurrent->index) {
+     *              rw.write(interCurrent,finalIndex2)
+     *              iterCurrent = rw.load(iterCurrent->next)
+     *              continue
+     *           }
+     *          //reached if iterFinal == iterCurrent
+     *          token* iterMerged = merge(iterFinal, IterCurrent)
+     *          rw.write(interMerged, finalIndex2)
+     *          iterCurrent = rw.load(iterCurrent->next)
+     *          iterFinal = rw.load(iterFinal->next)
+     *          //close indexes
+     *          finalIndex = finalIndex2
+     *      }
+     *
+     * }
+     */
 
     //rw.display();
     //cout << endl;
