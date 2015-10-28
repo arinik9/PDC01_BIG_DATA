@@ -17,7 +17,7 @@ private:
 public:
     hasht();
     int hash(std::string key);
-    bool addToken(std::string name);
+    bool addToken(std::string name, int id);
     bool addDocument(std::string tokenName, document* doc);
     int numberOftokensInIndex(int index);
     document* findDocument(int id, std::string token);

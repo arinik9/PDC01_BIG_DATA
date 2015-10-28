@@ -22,7 +22,7 @@ int hasht::hash(string key){
     }
     return index;
 }
-bool hasht::addToken(string name){
+bool hasht::addToken(string name, int id){
     token* existingToken = findToken(name);
     if (existingToken != NULL) {
         //Token already exists
@@ -33,7 +33,7 @@ bool hasht::addToken(string name){
         HashTable[index] = new hashToken;
         HashTable[index]->t = new token;
         HashTable[index]->t->name = name;
-        HashTable[index]->t->index = index;
+        HashTable[index]->t->index = id;
         HashTable[index]->t->doc = NULL;
         HashTable[index]->next = NULL;
         HashTable[index]->prev = NULL;
