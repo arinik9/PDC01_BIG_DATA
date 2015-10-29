@@ -73,24 +73,18 @@ void ReadWrite::display(){
 	}
 }
 
-void ReadWrite::removeFirstToken(){
-    // Each time, we remove the head of linked list
-    tokenList** head = &root;
-    tokenList* ptr = *head;
-    if(head){
-        *head = ptr->next;
-
-        delete ptr->t->doc;
-        delete ptr->t;
-        delete ptr;
-    }
-}
-
 void ReadWrite::initialize(){
+    //we delete just documents. So Tokens will stay in the linked list
+    //we create each document by doing 'new'. So we need to delete all
     tokenList* p = root;
     while(p != NULL){
-        removeFirstToken();
-        p= p->next;
+        document** headdoc = &(p->t->doc);
+        while(*headdoc != NULL){
+            document* ptr = *headdoc;
+            *headdoc = ptr->next;
+            delete ptr;
+        }
+        p = p->next;
     }
 }
 

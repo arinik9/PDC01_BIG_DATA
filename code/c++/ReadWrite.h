@@ -12,7 +12,6 @@ private:
     tokenList* root;
 public:
 	void addToken(token* newtoken);
-    void removeFirstToken();
     void initialize();
     std::string getFilename();
 	void display();
