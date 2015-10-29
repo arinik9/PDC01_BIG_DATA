@@ -130,40 +130,6 @@ document* hasht::findDocument(int id, string myToken){
     //token exists but not in specified document
     return NULL;
 }
-bool hasht::removeToken(string name){
-    hashToken* delPtr = findParentToken(name);
-    hashToken* p1;
-    hashToken* p2;
-    if (delPtr == NULL){
-        return false;
-    }
-    p2 = delPtr->next;
-    p1 = delPtr->prev;
-    if (p1 == NULL){
-        //worst case scenario, we need to get hash again
-        cout << "p1 NULL" << endl;
-        int index = hash(name);
-        HashTable[index] = p2;
-        if(p2 != NULL)
-            p2->prev = NULL;
-        delete delPtr->t;
-        delete delPtr;
-        return true;
-    }
-    else if(p2 == NULL){
-        //delPtr is found at the end
-        cout << "p2 NULL" << endl;
-        p1->next = NULL;
-        delete delPtr->t;
-        delete delPtr;
-        return true;
-    }
-    p1->next = p2;
-    p2->prev = p1;
-    delete delPtr->t;
-    delete delPtr;
-    return true;
-}
 void hasht::displayHashTable(){
     for(int index=0; index<tableSize; index++){
         if(HashTable[index]!=NULL){
@@ -181,16 +147,4 @@ void hasht::displayHashTable(){
             }
         }
     }
-}
-bool hasht::initializeHashTable(){
-    for(int index=0; index<tableSize; index++){
-        if(HashTable[index]!=NULL){
-            hashToken* iter = HashTable[index];
-            while(iter != NULL){
-                removeToken(iter->t->name);
-                iter = HashTable[index];
-            }
-        }
-    }
-    return true;
 }

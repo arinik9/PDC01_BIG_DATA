@@ -23,9 +23,7 @@ public:
     document* findDocument(int id, std::string token);
     token* findToken(std::string name);
     hashToken* findParentToken(std::string name);
-    bool removeToken(std::string name);
     void displayHashTable();
-    bool initializeHashTable();
 };
 
 #endif	/* HASHT_H */
