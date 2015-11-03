@@ -35,6 +35,8 @@ bool hasht::addToken(string name, int id){
         HashTable[index]->t->name = name;
         HashTable[index]->t->index = id;
         HashTable[index]->t->doc = NULL;
+        HashTable[index]->t->count = 0;
+        HashTable[index]->t->offset = 0;
         HashTable[index]->next = NULL;
         HashTable[index]->prev = NULL;
     }

@@ -11,6 +11,8 @@ struct token{
    int index;
    std::string name;
    document * doc;
+   unsigned int count : 16;
+   unsigned int offset : 10;
 };
 struct hashToken{
    hashToken* prev;
