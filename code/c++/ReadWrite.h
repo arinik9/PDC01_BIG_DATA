@@ -14,7 +14,6 @@ private:
 public:
     bool write(tokenList* list);
 	void addToken(token* newtoken);
-    void removeFirstToken();
     void initialize();
     std::string getFilename();
 	void display();
