@@ -18,6 +18,49 @@ std::string ReadWrite::getFilename(){
     return filename;
 }
 
+bool ReadWrite::write(tokenList* list)
+{
+    //TODO Add exception handling
+    int nbTokens = 0;
+    this->toFile.write(reinterpret_cast<const char*>(&nbTokens),sizeof(nbTokens));
+
+    tokenList* iter = list;
+    while(iter != NULL)
+    {
+        if(!this->writeToken(iter->t));
+            return false;
+        iter = iter->next;
+        nbTokens++;
+    }
+    this->toFile.seekp(0);
+    this->toFile.write(reinterpret_cast<const char*>(&nbTokens),sizeof(nbTokens));
+
+    return true;
+}
+
+bool ReadWrite::writeToken(token* token)
+{
+    //TODO Add exception handling
+    int nbDoc = 0;
+    document* iter = token->doc;
+
+    this->toFile.write(reinterpret_cast<const char*>(&(token->index)),sizeof(token->index));
+    this->toFile.write(reinterpret_cast<const char*>(&nbDoc),sizeof(nbDoc));
+
+    while (iter != NULL)
+    {
+        
+        this->toFile.write(reinterpret_cast<const char*>(&(iter->id)),sizeof(iter->id));
+        this->toFile.write(reinterpret_cast<const char*>(&(iter->frequency)),sizeof(iter->frequency));
+        iter = iter->next;
+        nbDoc++;
+    }
+
+    this->toFile.seekp(-(nbDoc * 2 * sizeof(int)),std::ios::ios_base::cur);
+    this->toFile.write(reinterpret_cast<const char*>(&nbDoc),sizeof(nbDoc));
+
+    return true;
+}
 void ReadWrite::addToken(token* newtoken){
 	tokenList* t_list = new tokenList;
     t_list->t = newtoken;

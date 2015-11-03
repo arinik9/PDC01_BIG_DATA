@@ -10,7 +10,9 @@ private:
     std::ofstream toFile;
     std::string filename;
     tokenList* root;
+    bool writeToken(token* token);
 public:
+    bool write(tokenList* list);
 	void addToken(token* newtoken);
     void removeFirstToken();
     void initialize();
