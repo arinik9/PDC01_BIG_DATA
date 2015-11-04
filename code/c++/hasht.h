@@ -13,6 +13,7 @@ class hasht{
 private:
    static const int tableSize = 500;
    int count;
+   int nb_tokens;
    hashToken* HashTable[tableSize];
 public:
     hasht();

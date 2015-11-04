@@ -10,6 +10,7 @@ struct document{
 struct token{
    int index;
    std::string name;
+   int nbDoc;
    document * doc;
    unsigned int count : 16;
    unsigned int offset : 10;

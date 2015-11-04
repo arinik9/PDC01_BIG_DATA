@@ -9,10 +9,13 @@ private:
     std::ifstream fromFile;
     std::ofstream toFile;
     std::string filename;
+    int nb_tokens;
     tokenList* root;
     bool writeToken(token* token);
 public:
-    bool write(tokenList* list);
+    bool write();
+    token* read();
+    token* readByIndex(int index);
 	void addToken(token* newtoken);
     void initialize();
     std::string getFilename();

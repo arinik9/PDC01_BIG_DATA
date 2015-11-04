@@ -1,13 +1,17 @@
 #include "dataStructure.h"
 #include "ReadWrite.h"
+#include <vector>
 
 ReadWrite::ReadWrite(std::string filename):toFile(filename.c_str(), std::ios::binary) {
     this->filename = filename;
-	root=NULL;
+	this->root=NULL;
+    this->nb_tokens=0;
 }
 
 ReadWrite::ReadWrite(){
-	root=NULL;
+	this->root=NULL;
+    this->nb_tokens=0;
+    this->filename = "";
 }
 
 ReadWrite::~ReadWrite() {
@@ -18,49 +22,82 @@ std::string ReadWrite::getFilename(){
     return filename;
 }
 
-bool ReadWrite::write(tokenList* list)
-{
+bool ReadWrite::write() {
     //TODO Add exception handling
-    int nbTokens = 0;
-    this->toFile.write(reinterpret_cast<const char*>(&nbTokens),sizeof(nbTokens));
+    //TODO it is possibile that we should change the type of 'this->nb_tokens' from int to uint32
+    if(this->filename == "")//error => no filename defined
+        return 0;
+    this->toFile.write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
 
-    tokenList* iter = list;
-    while(iter != NULL)
-    {
-        if(!this->writeToken(iter->t));
-            return false;
-        iter = iter->next;
-        nbTokens++;
+    tokenList* iter = root;
+    while(iter != NULL) {
+    int nbDocs = iter->t->nbDoc;
+    this->toFile.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
+    this->toFile.write(reinterpret_cast<const char*>(&nbDocs),sizeof(nbDocs));
+
+    document* it = iter->t->doc;
+    while (it != NULL) {
+        this->toFile.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
+        this->toFile.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
+        it = it->next;
     }
-    this->toFile.seekp(0);
-    this->toFile.write(reinterpret_cast<const char*>(&nbTokens),sizeof(nbTokens));
-
+    iter = iter->next;
+    }
+    
+    this->toFile.close();
     return true;
 }
 
-bool ReadWrite::writeToken(token* token)
-{
-    //TODO Add exception handling
-    int nbDoc = 0;
-    document* iter = token->doc;
+token* ReadWrite::readByIndex(int index){
+    //Index values begin from 0
+    if(this->filename == "")// error => no filename defined
+        return 0;
+    fromFile.open(filename.c_str(), std::ios::binary);
+    int nbTokens;
+    int tokenIndex;
+    int nbDoc;
+    int fileId;
+    int fileFreq;
+    token* newToken = new token;
+    newToken->doc = NULL;
 
-    this->toFile.write(reinterpret_cast<const char*>(&(token->index)),sizeof(token->index));
-    this->toFile.write(reinterpret_cast<const char*>(&nbDoc),sizeof(nbDoc));
+    fromFile.read(reinterpret_cast<char*>(&nbTokens), sizeof(int));
+    if(index>nbTokens) //error => index value can not be higher than nbTokens
+        return 0;
 
-    while (iter != NULL)
-    {
-        
-        this->toFile.write(reinterpret_cast<const char*>(&(iter->id)),sizeof(iter->id));
-        this->toFile.write(reinterpret_cast<const char*>(&(iter->frequency)),sizeof(iter->frequency));
-        iter = iter->next;
-        nbDoc++;
+    //jumping onto each token until arrive on index'th token
+    for(int i=0; i<=index; i++){
+        fromFile.read(reinterpret_cast<char*>(&tokenIndex), sizeof(int));
+        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(int));
+        std::vector<char> buffer(nbDoc*2*sizeof(int));
+        fromFile.read(buffer.data(), nbDoc*2*sizeof(int));
     }
 
-    this->toFile.seekp(-(nbDoc * 2 * sizeof(int)),std::ios::ios_base::cur);
-    this->toFile.write(reinterpret_cast<const char*>(&nbDoc),sizeof(nbDoc));
-
-    return true;
+    //now we are on index'th token
+    newToken->index=tokenIndex;
+    newToken->nbDoc=nbDoc;
+    for(int j=0; j<nbDoc; j++){
+        document* d = new document;
+        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(int));
+        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(int));
+        d->id=fileId;
+        d->frequency=fileFreq;
+        d->next=NULL;
+        document* iter_doc = newToken->doc;
+        if (iter_doc == NULL){
+            newToken->doc = d;
+        }
+        else{
+            while (iter_doc->next != NULL){
+                iter_doc=iter_doc->next;
+            }
+            iter_doc->next=d;
+        }
+    }
+   fromFile.close();
+   return newToken;
 }
+
 void ReadWrite::addToken(token* newtoken){
 	tokenList* t_list = new tokenList;
     t_list->t = newtoken;
@@ -68,6 +105,7 @@ void ReadWrite::addToken(token* newtoken){
 
     if(root == NULL){
         root = t_list;
+        this->nb_tokens = this->nb_tokens + 1;
     }
     else{//at least one token exists in the  linked list
         tokenList* ptr = root;
@@ -82,6 +120,7 @@ void ReadWrite::addToken(token* newtoken){
                 break;
             }
             else if(t_list->t->index < ptr->t->index){//token doesn't exist.It is inserting now
+                this->nb_tokens = this->nb_tokens + 1;
                 added=true;
                 if(ptr == root){
                     t_list->next=ptr;
@@ -96,6 +135,7 @@ void ReadWrite::addToken(token* newtoken){
             ptr = ptr->next;
         }
         if(!added){// token will be inserted at the end
+            this->nb_tokens = this->nb_tokens + 1;
             prev_ptr->next=t_list;
             t_list->next=NULL;
         }
