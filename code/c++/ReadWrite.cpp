@@ -2,10 +2,10 @@
 #include "ReadWrite.h"
 #include <vector>
 
-ReadWrite::ReadWrite(std::string filename):toFile(filename.c_str(), std::ios::binary) {
-    this->filename = filename;
-	this->root=NULL;
-    this->nb_tokens=0;
+ReadWrite::ReadWrite(std::string folder){
+    this->folder = folder;
+    this->root = NULL;
+    this->nb_tokens = 0;
 }
 
 ReadWrite::ReadWrite(){
@@ -27,21 +27,22 @@ bool ReadWrite::write() {
     //TODO it is possibile that we should change the type of 'this->nb_tokens' from int to uint32
     if(this->filename == "")//error => no filename defined
         return 0;
+
     this->toFile.write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
 
     tokenList* iter = root;
     while(iter != NULL) {
-    int nbDocs = iter->t->nbDoc;
-    this->toFile.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
-    this->toFile.write(reinterpret_cast<const char*>(&nbDocs),sizeof(nbDocs));
+        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
+        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->nbDoc)),sizeof(nbDocs));
 
-    document* it = iter->t->doc;
-    while (it != NULL) {
-        this->toFile.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
-        this->toFile.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
-        it = it->next;
-    }
-    iter = iter->next;
+        document* it = iter->t->doc;
+        while (it != NULL) {
+            this->toFile.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
+            this->toFile.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
+            it = it->next;
+        }
+
+        iter = iter->next;
     }
     
     this->toFile.close();
