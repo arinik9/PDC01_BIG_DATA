@@ -10,9 +10,9 @@ struct document{
 struct token{
    int index;
    std::string name;
-   unsigned int nbDoc : 10;
+   unsigned int nbDoc;
    document * doc;
-   unsigned int offset : 10;
+   unsigned int offset;
 };
 struct hashToken{
    hashToken* prev;
