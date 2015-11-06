@@ -49,13 +49,11 @@ bool ReadWrite::write() {
     return true;
 }
 
-token* ReadWrite::readByIndex(int index){
-    //TODO Open file
-
+token* ReadWrite::readByIndex(std::string filename, int index){
     //Index values begin from 0
-    /*if(this->filename == "")// error => no filename defined
-        return 0;*/
-    //fromFile.open(filename.c_str(), std::ios::binary);
+    if(filename.size() > 4 && filename.substr(filename.size() - 4) != ".bin")//error 
+        return 0;
+    fromFile.open(this->filename.c_str(), std::ios::binary);
     int nbTokens;
     int tokenIndex;
     int nbDoc;
@@ -159,7 +157,7 @@ void ReadWrite::display(){
 	}
 }
 
-void ReadWrite::initialize(){
+void ReadWrite::flush(){
     //we delete just documents. So Tokens will stay in the linked list
     //we create each document by doing 'new'. So we need to delete all
     tokenList* p = root;

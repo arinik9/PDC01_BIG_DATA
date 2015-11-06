@@ -13,15 +13,13 @@ private:
     tokenList* root;
     bool writeToken(token* token);
 public:
-    bool write();
-    token* read();
-    token* readByIndex(int index);
+    bool write(std::string filename);
+    token* readByIndex(std::string filename, int index);
 	void addToken(token* newtoken);
-    void initialize();
     std::string getFolder();
+    void flush();
 	void display();
 	void createInvertedFileOnDisk();
-	ReadWrite(std::string filename);
     ReadWrite();
 	virtual ~ReadWrite();
 
