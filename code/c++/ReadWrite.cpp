@@ -11,22 +11,22 @@ ReadWrite::ReadWrite(std::string folder){
 ReadWrite::ReadWrite(){
 	this->root=NULL;
     this->nb_tokens=0;
-    this->filename = "";
+    this->folder = "./";
 }
 
 ReadWrite::~ReadWrite() {
     //TODO
 }
 
-std::string ReadWrite::getFilename(){
-    return filename;
+std::string ReadWrite::getFolder(){
+    return folder;
 }
 
 bool ReadWrite::write() {
     //TODO Add exception handling
     //TODO it is possibile that we should change the type of 'this->nb_tokens' from int to uint32
-    if(this->filename == "")//error => no filename defined
-        return 0;
+    /*if(this->filename == "")//error => no filename defined
+        return 0;*/
 
     this->toFile.write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
 
@@ -50,10 +50,12 @@ bool ReadWrite::write() {
 }
 
 token* ReadWrite::readByIndex(int index){
+    //TODO Open file
+
     //Index values begin from 0
-    if(this->filename == "")// error => no filename defined
-        return 0;
-    fromFile.open(filename.c_str(), std::ios::binary);
+    /*if(this->filename == "")// error => no filename defined
+        return 0;*/
+    //fromFile.open(filename.c_str(), std::ios::binary);
     int nbTokens;
     int tokenIndex;
     int nbDoc;
@@ -62,14 +64,14 @@ token* ReadWrite::readByIndex(int index){
     token* newToken = new token;
     newToken->doc = NULL;
 
-    fromFile.read(reinterpret_cast<char*>(&nbTokens), sizeof(int));
+    fromFile.read(reinterpret_cast<char*>(&nbTokens), sizeof(nbTokens));
     if(index>nbTokens) //error => index value can not be higher than nbTokens
         return 0;
 
     //jumping onto each token until arrive on index'th token
     for(int i=0; i<=index; i++){
-        fromFile.read(reinterpret_cast<char*>(&tokenIndex), sizeof(int));
-        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(int));
+        fromFile.read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
+        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc)));
         std::vector<char> buffer(nbDoc*2*sizeof(int));
         fromFile.read(buffer.data(), nbDoc*2*sizeof(int));
     }
@@ -79,8 +81,8 @@ token* ReadWrite::readByIndex(int index){
     newToken->nbDoc=nbDoc;
     for(int j=0; j<nbDoc; j++){
         document* d = new document;
-        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(int));
-        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(int));
+        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id)));
+        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency))));
         d->id=fileId;
         d->frequency=fileFreq;
         d->next=NULL;
