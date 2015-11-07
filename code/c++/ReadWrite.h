@@ -25,7 +25,7 @@ public:
     std::string getFolder();
 	void display();
 	void createInvertedFileOnDisk();
-	ReadWrite(std::string filename);
+	ReadWrite(std::string folder);
     ReadWrite();
 	virtual ~ReadWrite();
 
