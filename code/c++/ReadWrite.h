@@ -11,7 +11,9 @@ private:
     std::string folder;
     int nb_tokens;
     tokenList* root;
+    int nbFiles;
     bool writeToken(token* token);
+    std::string getNextFileName();
 public:
     bool write();
     token* read();

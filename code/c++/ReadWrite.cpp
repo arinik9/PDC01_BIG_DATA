@@ -11,7 +11,7 @@ ReadWrite::ReadWrite(std::string folder){
 ReadWrite::ReadWrite(){
 	this->root=NULL;
     this->nb_tokens=0;
-    this->folder = "./";
+    this->folder = "./storage/";
 }
 
 ReadWrite::~ReadWrite() {
@@ -25,27 +25,30 @@ std::string ReadWrite::getFolder(){
 bool ReadWrite::write() {
     //TODO Add exception handling
     //TODO it is possibile that we should change the type of 'this->nb_tokens' from int to uint32
-    /*if(this->filename == "")//error => no filename defined
-        return 0;*/
 
-    this->toFile.write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
+    std::ofstream file (this->getNextFileName().c_str(), std::ofstream::binary);
+
+    if(this->folder == "" || !file.good())//error => no filename defined
+        return false;
+
+    file.write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
 
     tokenList* iter = root;
     while(iter != NULL) {
-        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
-        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->nbDoc)),sizeof(iter->t->nbDoc));
+        file.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
+        file.write(reinterpret_cast<const char*>(&(iter->t->nbDoc)),sizeof(iter->t->nbDoc));
 
         document* it = iter->t->doc;
         while (it != NULL) {
-            this->toFile.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
-            this->toFile.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
+            file.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
+            file.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
             it = it->next;
         }
 
         iter = iter->next;
     }
     
-    this->toFile.close();
+    file.close();
     return true;
 }
 
@@ -187,4 +190,10 @@ void ReadWrite::createInvertedFileOnDisk() {
     fromFile.close();
     std::cout << "output from " << filename << ": " << t << std::endl;
 */
+}
+
+std::string ReadWrite::getNextFileName()
+{
+    this->nbFiles++;
+    return this->folder + intToString(this->nbFiles) + ".index";
 }

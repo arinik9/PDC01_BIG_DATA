@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>  
 
 struct document{
    int id;
@@ -23,3 +24,10 @@ struct tokenList{
   token* t;
   tokenList* next;
 };
+
+inline std::string intToString(int i)
+{
+	std::stringstream ss;
+	ss << i;
+	return ss.str();
+}
