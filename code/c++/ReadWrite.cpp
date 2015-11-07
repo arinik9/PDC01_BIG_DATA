@@ -6,12 +6,14 @@ ReadWrite::ReadWrite(std::string folder){
     this->folder = folder;
     this->root = NULL;
     this->nb_tokens = 0;
+    this->toFile = NULL;
 }
 
 ReadWrite::ReadWrite(){
 	this->root=NULL;
     this->nb_tokens=0;
     this->folder = "./storage/";
+    this->toFile = NULL;
 }
 
 ReadWrite::~ReadWrite() {
@@ -59,9 +61,21 @@ bool ReadWrite::writeToken(std::ofstream* file, token* token)
     return true;
 }
 
-bool writeToken(token* Token)
+bool writeToken(token* token)
 {
-
+    if(this->toFile == NULL)
+    {
+        this->toFile = new std::ofstream(getNextFileName().c_str(),std::ios::binary);
+    }
+    
+    if(!this->toFile->good())
+    {
+        return false;
+    }
+    else
+    {
+       return this->writeToken(this->toFile,token);
+    }
 }
 
 token* ReadWrite::readByIndex(int index){
