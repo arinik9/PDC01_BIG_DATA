@@ -61,7 +61,7 @@ bool ReadWrite::writeToken(std::ofstream* file, token* token)
     return true;
 }
 
-bool writeToken(token* token)
+bool ReadWrite::writeToken(token* token)
 {
     if(this->toFile == NULL)
     {
@@ -218,7 +218,26 @@ void ReadWrite::createInvertedFileOnDisk() {
     std::cout << "output from " << filename << ": " << t << std::endl;
 */
 }
+bool ReadWrite::closeCurrentWritingFile()
+{
+    this->toFile->close();
+    if(!this->toFile->is_open())
+    {
+        delete this->toFile;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+bool ReadWrite::deleteIndexFile(int i)
+{
+    std::string fileName = this->folder + intToString(i) + ".index";
 
+    return std::remove(fileName.c_str());
+
+}
 std::string ReadWrite::getNextFileName()
 {
     this->nbFiles++;

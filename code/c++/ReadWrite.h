@@ -7,7 +7,7 @@
 class ReadWrite {
 private:
     std::ifstream fromFile;
-    std::ofstream toFile;
+    std::ofstream* toFile;
     std::string folder;
     int nb_tokens;
     tokenList* root;
@@ -25,9 +25,12 @@ public:
     std::string getFolder();
 	void display();
 	void createInvertedFileOnDisk();
+    bool deleteIndexFile(int id);
+    bool closeCurrentWritingFile();
 	ReadWrite(std::string folder);
     ReadWrite();
 	virtual ~ReadWrite();
+
 
 };
 
