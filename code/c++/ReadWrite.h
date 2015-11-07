@@ -12,14 +12,14 @@ private:
     int nb_tokens;
     tokenList* root;
     int nbFiles;
-    bool writeToken(token* token);
     std::string getNextFileName();
 public:
     bool write();
+    bool writeToken(token* token);
     token* read();
     token* readByIndex(int index);
 	void addToken(token* newtoken);
-    void initialize();
+    void flush();
     std::string getFolder();
 	void display();
 	void createInvertedFileOnDisk();

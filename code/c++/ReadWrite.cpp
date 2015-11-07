@@ -52,6 +52,10 @@ bool ReadWrite::write() {
     return true;
 }
 
+bool writeToken(token* Token){
+
+}
+
 token* ReadWrite::readByIndex(int index){
     //TODO Open file
 
@@ -162,7 +166,7 @@ void ReadWrite::display(){
 	}
 }
 
-void ReadWrite::initialize(){
+void ReadWrite::flush(){
     //we delete just documents. So Tokens will stay in the linked list
     //we create each document by doing 'new'. So we need to delete all
     tokenList* p = root;
@@ -173,6 +177,7 @@ void ReadWrite::initialize(){
             *headdoc = ptr->next;
             delete ptr;
         }
+        p->t->nbDoc = 0;
         p = p->next;
     }
 }
