@@ -5,6 +5,9 @@
  * Created on 10 octobre 2015, 21:44
  */
 #include <iostream>
+#include <fstream>
+#include <cstring>
+#include <string>
 
 #ifndef HASHT_H
 #define	HASHT_H
@@ -15,16 +18,22 @@ private:
    int count;
    int nb_tokens;
    hashToken* HashTable[tableSize];
+   std::ifstream fromFile;
+   std::ofstream toFile;
+   std::string filename; //for re-launching the system
 public:
-    hasht();
+    hasht(std::string name);
     int hash(std::string key);
-    bool addToken(std::string name, int id);
+    bool addToken(std::string name, int id, unsigned int nbDoc=0, unsigned int offset=0);
     bool addDocument(std::string tokenName, document* doc);
     int numberOftokensInIndex(int index);
     document* findDocument(int id, std::string token);
     token* findToken(std::string name);
     hashToken* findParentToken(std::string name);
     void displayHashTable();
+    void writeAllTokensToFile(std::string name_final_inverted_file);
+    std::string readAllTokensFromFile();
 };
 
 #endif	/* HASHT_H */
+

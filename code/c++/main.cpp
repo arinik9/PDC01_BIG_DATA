@@ -40,7 +40,7 @@ document* strToDoc(string str, string &tokenName){
 }
 
 int main(int argc, char** argv) {
-    hasht hashy;
+    hasht hashy("tokens.bin");
     ReadWrite rw("invertedFile.bin");
     int counter=0;
     int tokenId = 0;

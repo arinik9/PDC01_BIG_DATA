@@ -1,9 +1,8 @@
-#include <iostream>
 #include "dataStructure.h"
 #include "hasht.h"
 
 using namespace std;
-hasht::hasht(){
+hasht::hasht(std::string name){
     for(int i = 0; i < tableSize; i++)
     {
         HashTable[i] = NULL;
@@ -11,6 +10,7 @@ hasht::hasht(){
     //initialize class variables
     nb_tokens=0;
     count = 0;
+    this->filename=name;
 }
 int hasht::hash(string key){
     int index;
@@ -24,7 +24,7 @@ int hasht::hash(string key){
     }
     return index;
 }
-bool hasht::addToken(string name, int id){
+bool hasht::addToken(string name, int id, unsigned int nbDoc, unsigned int offset){
     token* existingToken = findToken(name);
     if (existingToken != NULL) {
         //Token already exists
@@ -37,9 +37,9 @@ bool hasht::addToken(string name, int id){
         HashTable[index]->t = new token;
         HashTable[index]->t->name = name;
         HashTable[index]->t->index = id;
-        HashTable[index]->t->nbDoc = 0;
+        HashTable[index]->t->nbDoc = nbDoc;
         HashTable[index]->t->doc = NULL;
-        HashTable[index]->t->offset = 0;
+        HashTable[index]->t->offset = offset;
         HashTable[index]->next = NULL;
         HashTable[index]->prev = NULL;
     }
@@ -50,7 +50,8 @@ bool hasht::addToken(string name, int id){
         n->t = new token;
         n->t->name = name;
         n->t->index = id;
-        n->t->nbDoc = 0;
+        n->t->nbDoc = nbDoc;
+        n->t->offset = offset;
         n->t->doc = NULL;
         n->next = NULL;
         n->prev = NULL;
@@ -157,4 +158,55 @@ void hasht::displayHashTable(){
             }
         }
     }
+}
+void hasht::writeAllTokensToFile(std::string fname){
+    //TODO tf - idf
+    const char* temp;
+    this->toFile.open(this->filename.c_str(), std::ios::binary);
+
+    this->toFile.write(reinterpret_cast<char*>(&(nb_tokens)), sizeof(nb_tokens));
+
+    //we need the name of final inverted file on disk
+    this->toFile.write(fname.c_str(), fname.size()+1);
+
+    for(int index=0; index<tableSize; index++){
+        if(HashTable[index] != NULL){
+            hashToken*  iter = HashTable[index];
+            while(iter != NULL){
+                this->toFile.write(reinterpret_cast<char*>(&(iter->t->index)), sizeof(iter->t->index));
+                this->toFile.write(iter->t->name.c_str(), iter->t->name.size()+1);
+                this->toFile.write(reinterpret_cast<char*>(&(iter->t->nbDoc)), sizeof(iter->t->nbDoc));
+                this->toFile.write(reinterpret_cast<char*>(&(iter->t->offset)), sizeof(iter->t->offset));
+                iter = iter->next;
+            }
+        }
+    }
+    this->toFile.close();
+}
+
+std::string hasht::readAllTokensFromFile(){
+    //TODO tf-idf
+    this->fromFile.open(this->filename.c_str(), std::ios::binary);
+    std::string final_index_name;
+    std::string name;
+    int nbTokens;
+    int index;
+    unsigned int nbDoc;
+    unsigned int offset;
+
+    this->fromFile.read((char*)&nbTokens, sizeof(nbTokens));
+    std::cout << nbTokens << std::endl;
+    std::getline(this->fromFile, final_index_name, '\0');
+
+    for(int i=0; i<nbTokens; i++){
+        this->fromFile.read(reinterpret_cast<char*>(&index), sizeof(index));
+        std::getline(this->fromFile, name, '\0');
+        this->fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(nbDoc));
+        this->fromFile.read(reinterpret_cast<char*>(&offset), sizeof(offset));
+
+        addToken(name, index, nbDoc, offset);
+    }
+
+    this->fromFile.close();
+    return final_index_name;
 }
