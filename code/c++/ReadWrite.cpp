@@ -26,33 +26,41 @@ bool ReadWrite::write() {
     //TODO Add exception handling
     //TODO it is possibile that we should change the type of 'this->nb_tokens' from int to uint32
 
-    std::ofstream file (this->getNextFileName().c_str(), std::ofstream::binary);
+    std::ofstream *file = new std::ofstream(this->getNextFileName().c_str(), std::ofstream::binary);
 
-    if(this->folder == "" || !file.good())//error => no filename defined
+    if(this->folder == "" || !file->good())//error => no filename defined
         return false;
 
-    file.write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
+    file->write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
 
     tokenList* iter = root;
     while(iter != NULL) {
-        file.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
-        file.write(reinterpret_cast<const char*>(&(iter->t->nbDoc)),sizeof(iter->t->nbDoc));
 
-        document* it = iter->t->doc;
-        while (it != NULL) {
-            file.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
-            file.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
-            it = it->next;
-        }
+        this->writeToken(file,iter->t);
 
         iter = iter->next;
     }
     
-    file.close();
+    file->close();
+    delete file;
+    return true;
+}
+bool ReadWrite::writeToken(std::ofstream* file, token* token)
+{
+    file->write(reinterpret_cast<const char*>(&(token->index)),sizeof(token->index));
+    file->write(reinterpret_cast<const char*>(&(token->nbDoc)),sizeof(token->nbDoc));
+
+    document* it = token->doc;
+    while (it != NULL) {
+        file->write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
+        file->write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
+        it = it->next;
+    }
     return true;
 }
 
-bool writeToken(token* Token){
+bool writeToken(token* Token)
+{
 
 }
 

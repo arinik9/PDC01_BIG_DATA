@@ -12,7 +12,9 @@ private:
     int nb_tokens;
     tokenList* root;
     int nbFiles;
+    bool writeToken(std::ofstream* file, token* token);
     std::string getNextFileName();
+
 public:
     bool write();
     bool writeToken(token* token);
