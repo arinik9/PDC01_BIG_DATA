@@ -33,7 +33,7 @@ bool ReadWrite::write() {
     tokenList* iter = root;
     while(iter != NULL) {
         this->toFile.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
-        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->nbDoc)),sizeof(nbDocs));
+        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->nbDoc)),sizeof(iter->t->nbDoc));
 
         document* it = iter->t->doc;
         while (it != NULL) {
@@ -71,7 +71,7 @@ token* ReadWrite::readByIndex(int index){
     //jumping onto each token until arrive on index'th token
     for(int i=0; i<=index; i++){
         fromFile.read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
-        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc)));
+        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc));
         std::vector<char> buffer(nbDoc*2*sizeof(int));
         fromFile.read(buffer.data(), nbDoc*2*sizeof(int));
     }
@@ -81,8 +81,8 @@ token* ReadWrite::readByIndex(int index){
     newToken->nbDoc=nbDoc;
     for(int j=0; j<nbDoc; j++){
         document* d = new document;
-        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id)));
-        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency))));
+        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id));
+        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency));
         d->id=fileId;
         d->frequency=fileFreq;
         d->next=NULL;
