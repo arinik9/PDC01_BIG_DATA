@@ -8,18 +8,20 @@ class ReadWrite {
 private:
     std::ifstream fromFile;
     std::ofstream toFile;
-    std::string folder;
+    std::string filename;
     int nb_tokens;
     tokenList* root;
     bool writeToken(token* token);
 public:
-    bool write(std::string filename);
-    token* readByIndex(std::string filename, int index);
+    bool write();
+    token* read();
+    token* readByIndex(int index);
 	void addToken(token* newtoken);
-    std::string getFolder();
-    void flush();
+    void initialize();//
+    std::string getFilename();
 	void display();
 	void createInvertedFileOnDisk();
+	ReadWrite(std::string filename);
     ReadWrite();
 	virtual ~ReadWrite();
 

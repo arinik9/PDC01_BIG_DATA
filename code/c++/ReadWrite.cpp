@@ -2,58 +2,57 @@
 #include "ReadWrite.h"
 #include <vector>
 
-ReadWrite::ReadWrite(std::string folder){
-    this->folder = folder;
-    this->root = NULL;
-    this->nb_tokens = 0;
+ReadWrite::ReadWrite(std::string filename):toFile(filename.c_str(), std::ios::binary) {
+    this->filename = filename;
+	this->root=NULL;
+    this->nb_tokens=0;
 }
 
 ReadWrite::ReadWrite(){
 	this->root=NULL;
     this->nb_tokens=0;
-    this->folder = "./";
+    this->filename = "";
 }
 
 ReadWrite::~ReadWrite() {
-    //TODO
+    // TODO
 }
 
-std::string ReadWrite::getFolder(){
-    return folder;
+std::string ReadWrite::getFilename(){
+    return filename;
 }
 
 bool ReadWrite::write() {
     //TODO Add exception handling
     //TODO it is possibile that we should change the type of 'this->nb_tokens' from int to uint32
-    /*if(this->filename == "")//error => no filename defined
-        return 0;*/
-
+    if(this->filename == "")//error => no filename defined
+        return 0;
     this->toFile.write(reinterpret_cast<const char*>(&(this->nb_tokens)),sizeof(this->nb_tokens));
 
     tokenList* iter = root;
     while(iter != NULL) {
-        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
-        this->toFile.write(reinterpret_cast<const char*>(&(iter->t->nbDoc)),sizeof(nbDocs));
+    int nbDocs = iter->t->nbDoc;
+    this->toFile.write(reinterpret_cast<const char*>(&(iter->t->index)),sizeof(iter->t->index));
+    this->toFile.write(reinterpret_cast<const char*>(&nbDocs),sizeof(nbDocs));
 
-        document* it = iter->t->doc;
-        while (it != NULL) {
-            this->toFile.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
-            this->toFile.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
-            it = it->next;
-        }
-
-        iter = iter->next;
+    document* it = iter->t->doc;
+    while (it != NULL) {
+        this->toFile.write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
+        this->toFile.write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
+        it = it->next;
+    }
+    iter = iter->next;
     }
     
     this->toFile.close();
     return true;
 }
 
-token* ReadWrite::readByIndex(std::string filename, int index){
+token* ReadWrite::readByIndex(int index){
     //Index values begin from 0
-    if(filename.size() > 4 && filename.substr(filename.size() - 4) != ".bin")//error 
+    if(this->filename == "")// error => no filename defined
         return 0;
-    fromFile.open(this->filename.c_str(), std::ios::binary);
+    fromFile.open(filename.c_str(), std::ios::binary);
     int nbTokens;
     int tokenIndex;
     int nbDoc;
@@ -62,14 +61,14 @@ token* ReadWrite::readByIndex(std::string filename, int index){
     token* newToken = new token;
     newToken->doc = NULL;
 
-    fromFile.read(reinterpret_cast<char*>(&nbTokens), sizeof(nbTokens));
+    fromFile.read(reinterpret_cast<char*>(&nbTokens), sizeof(int));
     if(index>nbTokens) //error => index value can not be higher than nbTokens
         return 0;
 
     //jumping onto each token until arrive on index'th token
     for(int i=0; i<=index; i++){
-        fromFile.read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
-        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc)));
+        fromFile.read(reinterpret_cast<char*>(&tokenIndex), sizeof(int));
+        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(int));
         std::vector<char> buffer(nbDoc*2*sizeof(int));
         fromFile.read(buffer.data(), nbDoc*2*sizeof(int));
     }
@@ -79,8 +78,8 @@ token* ReadWrite::readByIndex(std::string filename, int index){
     newToken->nbDoc=nbDoc;
     for(int j=0; j<nbDoc; j++){
         document* d = new document;
-        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id)));
-        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency))));
+        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(int));
+        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(int));
         d->id=fileId;
         d->frequency=fileFreq;
         d->next=NULL;
@@ -157,7 +156,7 @@ void ReadWrite::display(){
 	}
 }
 
-void ReadWrite::flush(){
+void ReadWrite::initialize(){
     //we delete just documents. So Tokens will stay in the linked list
     //we create each document by doing 'new'. So we need to delete all
     tokenList* p = root;
