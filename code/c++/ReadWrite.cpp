@@ -10,7 +10,7 @@ ReadWrite::ReadWrite(std::string folder){
 }
 
 ReadWrite::ReadWrite(){
-	this->root=NULL;
+    this->root=NULL;
     this->nb_tokens=0;
     this->folder = "./storage/";
     this->toFile = NULL;
@@ -140,7 +140,7 @@ token* ReadWrite::readByIndex(int index, std::ifstream* file){
 }
 
 void ReadWrite::addToken(token* newtoken){
-	tokenList* t_list = new tokenList;
+    tokenList* t_list = new tokenList;
     t_list->t = newtoken;
     t_list->next = NULL;
 
@@ -185,7 +185,7 @@ void ReadWrite::addToken(token* newtoken){
 
 void ReadWrite::display(){
     tokenList* p = root;
-	while(p!=NULL){
+    while(p!=NULL){
         std::cout << p->t->index << ", " << p->t->name << std::endl;
         document* doc = p->t->doc;
         while(doc != NULL){
@@ -193,8 +193,8 @@ void ReadWrite::display(){
             doc = doc->next;
         }
         std::cout << std::endl;
-	    p = p->next;
-	}
+        p = p->next;
+    }
 }
 
 void ReadWrite::flush(){
