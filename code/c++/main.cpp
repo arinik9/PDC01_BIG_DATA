@@ -14,7 +14,7 @@
 #include "hasht.h"
 #include "ReadWrite.h"
 #define STR_SIZE 3
-#define DOC_MAX 100
+#define DOC_MAX 10
 
 using namespace std;
 
@@ -43,13 +43,14 @@ int main(int argc, char** argv) {
     hasht hashy("tokens.bin");
     ReadWrite rw;
     int counter=0;
+    int whole_count =0;
     int tokenId = 0;
     while (true){
-        counter = counter + 1;
         string in;
         if(!getline(std::cin, in)){
             break;
         }
+        counter = counter + 1;
         //cout << in <<endl;
         string tokenName;
         document* doc = strToDoc(in, tokenName);
@@ -64,42 +65,44 @@ int main(int argc, char** argv) {
             continue;
         }
         // Reached if we get more docs than we are supposed to
+        
 
         //Write to disk
+        rw.write();
+        rw.flush();
         //Flush posting lists
         //Flush ReadWrite's chained list
         //cout << counter << endl;
+        whole_count += counter;
         counter = 0;
     }
+    whole_count += counter;
+    rw.write();
+    rw.flush();
+    int fileIndexCount = rw.getNbFiles();
+    //fileIndexCount = rw.fileIndexCount
+    //
     //merge
-    // finalindex = copyofindex0
-    /* for (i=1; i<nbofindex; i++){
-     *      currentindex = i;
-     *      finalIndex2 = new index;
-     *      token* iterFinal = rw.load(finalindex)
-     *      token* iterCurrent = rw.load(currentIndex)
-     *      while (iterFinal != NULL && iterCurrent != NULL){
-     *           if (iterFinal->index < iterCurrent->index ){
-     *               rw.write(iterFinal,finalIndex2)
-     *               iterFinal = rw.load(iterFinal->next)
-     *               continue
-     *           }
-     *           if (iterFinal->index > iterCurrent->index) {
-     *              rw.write(interCurrent,finalIndex2)
-     *              iterCurrent = rw.load(iterCurrent->next)
-     *              continue
-     *           }
-     *          //reached if iterFinal == iterCurrent
-     *          token* iterMerged = merge(iterFinal, IterCurrent)
-     *          rw.write(interMerged, finalIndex2)
-     *          iterCurrent = rw.load(iterCurrent->next)
-     *          iterFinal = rw.load(iterFinal->next)
-     *          //close indexes
-     *          finalIndex = finalIndex2
-     *      }
-     *
-     * }
-     */
+    // string tempIndex = index(0)
+    // token* t = rw.read(0,tempIndex)
+    std::string tempIndex0 = rw.getFolder() + intToString(1) + ".index";
+    int i;
+    for (i=2; i < fileIndexCount; i++){
+        std::string tempIndex1 = rw.getFolder() + intToString(i) + ".index";
+        std::string outIndex = rw.getFolder() + intToString(i) + ".tempindex";
+        if (!rw.mergeIndexes(tempIndex0, tempIndex1, outIndex)){
+            return 0;
+        }
+        tempIndex0 = outIndex;
+    }
+    std::string tempIndex1 = rw.getFolder() + intToString(i) + ".index";
+    rw.mergeFinal(tempIndex0, tempIndex1, whole_count);
+    token* test = hashy.findToken("fallout");
+    string fallout = "time";
+    std::ifstream firstIndex;
+    firstIndex.open("time", std::ios::binary);
+    cout << "time " << test->index << " " << rw.readByIndex(test->index, &firstIndex)->doc->frequency << endl;
+    firstIndex.close();
 
     //rw.display();
     //cout << endl;
