@@ -51,7 +51,9 @@ bool ReadWrite::write() {
     tokenList* iter = root;
     while(iter != NULL) {
 
-        this->writeToken(file,iter->t);
+        if (iter->t->doc != NULL){
+            this->writeToken(file,iter->t);
+        }
 
         iter = iter->next;
     }
@@ -158,6 +160,7 @@ void ReadWrite::addToken(token* newtoken){
                 //token exists but it doesnt contain new doc.
                 //So just update the root doc address via newtoken
                 ptr->t->doc =t_list->t->doc;
+                this->nb_tokens = this->nb_tokens + 1;
                 break;
             }
             else if(t_list->t->index < ptr->t->index){//token doesn't exist.It is inserting now
