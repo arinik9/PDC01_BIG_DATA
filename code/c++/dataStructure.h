@@ -24,10 +24,7 @@ struct tokenList{
   token* t;
   tokenList* next;
 };
-
-inline std::string intToString(int i)
-{
-	std::stringstream ss;
-	ss << i;
-	return ss.str();
-}
+std::string intToString(int i);
+document* getLast(document* first);
+int idf(int nbTotal, int nb);
+void tfidf(token* t, int idfValue);

@@ -3,7 +3,7 @@ DEBUG ?=
 
 all: main
 
-main: hasht.o ReadWrite.o main.cpp
+main: hasht.o ReadWrite.o dataStructure.o main.cpp
 	$(CC) $(DEBUG) -o $@ $^
 
 ReadWrite.o: ReadWrite.cpp
@@ -12,7 +12,10 @@ ReadWrite.o: ReadWrite.cpp
 hasht.o: hasht.cpp
 	$(CC) $(DEBUG) -c $^
 
+dataStructure.o: dataStructure.cpp
+	$(CC) $(DEBUG) -c $^
+
 clean:
-	rm *.o main
+	-rm *.o main
 
 .PHONY: clean all
