@@ -14,6 +14,7 @@ private:
     int nbFiles;
     bool writeToken(std::ofstream* file, token* token);
     std::string getNextFileName();
+    token* getToken(int index);
     void deleteToken(token* t);
 
 public:
@@ -28,6 +29,7 @@ public:
 	void createInvertedFileOnDisk();
     bool deleteIndexFile(int id);
     bool closeCurrentWritingFile();
+    int getNbFiles();
 	ReadWrite(std::string folder);
     ReadWrite();
 	virtual ~ReadWrite();

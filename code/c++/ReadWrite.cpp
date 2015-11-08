@@ -23,6 +23,19 @@ ReadWrite::~ReadWrite() {
 std::string ReadWrite::getFolder(){
     return folder;
 }
+int ReadWrite::getNbFiles(){
+    return this->nbFiles;
+}
+token* ReadWrite::getToken(int index){
+    tokenList* iter = root;
+    while (iter != NULL){
+        if (iter->t->index == index){
+            return iter->t;
+        }
+        iter = iter->next;
+    }
+    return NULL;
+}
 
 bool ReadWrite::write() {
     //TODO Add exception handling
