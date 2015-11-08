@@ -266,6 +266,7 @@ std::string ReadWrite::getNextFileName()
     this->nbFiles++;
     return this->folder + intToString(this->nbFiles) + ".index";
 }
+
 bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
                              std::string secIndexFilename,
                              std::string outIndexFilename){
@@ -316,4 +317,75 @@ bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
     outIndex.close();
     return true;
 
+}
+
+bool ReadWrite::mergeFinal(std::string firstIndexFilename,
+                             std::string secIndexFilename,
+                             int nbTotalDocs){
+    std::string outIndexFilename = "final.index";
+    std::cout << outIndexFilename<< std::endl;
+    std::ifstream firstIndex;
+    std::ifstream secIndex;
+    std::ofstream outIndex;
+    firstIndex.open(firstIndexFilename.c_str(), std::ios::binary);
+    secIndex.open(secIndexFilename.c_str(), std::ios::binary);
+    outIndex.open(outIndexFilename.c_str(), std::ios::binary);
+    int firstIter = 0;
+    int secIter = 0;
+    int firstCount;
+    firstIndex.read((char*)&firstCount, sizeof(firstCount));
+    int secCount;
+    secIndex.read((char*)&secCount, sizeof(secCount));
+    int gbCount = firstCount + secCount;
+    outIndex.write(reinterpret_cast<const char*>(&(gbCount)),sizeof(gbCount));
+    token* t1 = this->readByIndex(firstIter, &firstIndex);
+    token* t2 = this->readByIndex(secIter, &secIndex);
+    while (firstIter < firstCount || secIter < secCount){
+        if (!t2){
+            tfidf(t1,idf(nbTotalDocs, t1->nbDoc));
+            this->writeToken(&outIndex, t1);
+            deleteToken(t1);
+            firstIter++;
+            t1 = this->readByIndex(firstIter, &firstIndex);
+            continue;
+        }
+        if (!t1){
+            tfidf(t2,idf(nbTotalDocs, t2->nbDoc));
+            this->writeToken(&outIndex, t2);
+            deleteToken(t2);
+            firstIter++;
+            t2 = this->readByIndex(firstIter, &firstIndex);
+            continue;
+        }
+
+        if (firstIter == firstCount || t1->index > t2->index){
+            tfidf(t2,idf(nbTotalDocs, t2->nbDoc));
+            this->writeToken(&outIndex, t2);
+            deleteToken(t2);
+            secIter++;
+            t2 = this->readByIndex(secIter, &secIndex);
+            continue;
+        }
+        if (secIter == secCount || t1->index < t2->index){
+            tfidf(t1,idf(nbTotalDocs, t1->nbDoc));
+            this->writeToken(&outIndex, t1);
+            deleteToken(t1);
+            firstIter++;
+            t1 = this->readByIndex(firstIter, &firstIndex);
+            continue;
+        }
+        gbCount--;
+        tfidf(t1,idf(nbTotalDocs, t1->nbDoc));
+        this->writeToken(&outIndex, t1);
+        deleteToken(t2);
+        secIter++;
+        t2 = this->readByIndex(secIter, &secIndex);
+        deleteToken(t1);
+        firstIter++;
+        t1 = this->readByIndex(firstIter, &firstIndex);
+    }
+    firstIndex.close();
+    secIndex.close();
+    outIndex.close();
+    return true;
 }

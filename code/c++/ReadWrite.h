@@ -32,6 +32,9 @@ public:
     bool mergeIndexes(std::string firstIndexFilename,
                       std::string secIndexFilename,
                       std::string outIndexFilename);
+    bool mergeFinal(std::string firstIndexFilename,
+                    std::string secIndexFilename,
+                    int nbTotalDocs);
     int getNbFiles();
 	ReadWrite(std::string folder);
     ReadWrite();
