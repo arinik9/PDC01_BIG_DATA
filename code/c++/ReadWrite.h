@@ -29,6 +29,9 @@ public:
 	void createInvertedFileOnDisk();
     bool deleteIndexFile(int id);
     bool closeCurrentWritingFile();
+    bool mergeIndexes(std::string firstIndexFilename,
+                      std::string secIndexFilename,
+                      std::string outIndexFilename);
     int getNbFiles();
 	ReadWrite(std::string folder);
     ReadWrite();
