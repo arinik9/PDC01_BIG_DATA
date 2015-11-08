@@ -69,6 +69,7 @@ bool ReadWrite::writeToken(std::ofstream* file, token* token)
     while (it != NULL) {
         file->write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
         file->write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
+        std::cout << "writedoc " << token->index << "|" << token->name << " " << it->id << std::endl;
         it = it->next;
     }
     return true;
