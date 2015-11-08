@@ -14,6 +14,7 @@ private:
     int nbFiles;
     bool writeToken(std::ofstream* file, token* token);
     std::string getNextFileName();
+    void deleteToken(token* t);
 
 public:
     bool write();

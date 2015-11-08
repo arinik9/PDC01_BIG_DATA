@@ -193,15 +193,26 @@ void ReadWrite::flush(){
     //we create each document by doing 'new'. So we need to delete all
     tokenList* p = root;
     while(p != NULL){
-        document** headdoc = &(p->t->doc);
-        while(*headdoc != NULL){
-            document* ptr = *headdoc;
-            *headdoc = ptr->next;
-            delete ptr;
-        }
-        p->t->nbDoc = 0;
+        deleteToken(p->t);
+        p->t->doc = NULL;
         p = p->next;
     }
+    this->nb_tokens = 0;
+}
+
+
+void ReadWrite::deleteToken(token* t){
+    document* doc1 = t->doc;
+    if (t->nbDoc == 0){
+        return;
+    }
+    while (doc1 != NULL){
+        document* doc2 = doc1;
+        doc1 = doc1->next;
+        delete doc2;
+    }
+    t->nbDoc = 0;
+    t->doc = NULL;
 }
 
 void ReadWrite::createInvertedFileOnDisk() {
