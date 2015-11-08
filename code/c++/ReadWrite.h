@@ -21,7 +21,7 @@ public:
     bool write();
     bool writeToken(token* token);
     token* read();
-    token* readByIndex(int index);
+    token* readByIndex(int index, std::ifstream* file);
 	void addToken(token* newtoken);
     void flush();
     std::string getFolder();

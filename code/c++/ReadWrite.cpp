@@ -92,44 +92,40 @@ bool ReadWrite::writeToken(token* token)
     }
 }
 
-token* ReadWrite::readByIndex(int index){
-    //TODO Open file
-
-    //Index values begin from 0
-    /*if(this->filename == "")// error => no filename defined
-        return 0;*/
-    //fromFile.open(filename.c_str(), std::ios::binary);
+token* ReadWrite::readByIndex(int index, std::ifstream* file){
+    file->clear();
+    file->seekg(0, std::ios::beg);
     int nbTokens;
     int tokenIndex;
     int nbDoc;
     int fileId;
     int fileFreq;
-    token* newToken = new token;
-    newToken->doc = NULL;
+    token* newToken;
 
-    fromFile.read(reinterpret_cast<char*>(&nbTokens), sizeof(nbTokens));
+    file->read(reinterpret_cast<char*>(&nbTokens), sizeof(nbTokens));
     if(index>nbTokens) //error => index value can not be higher than nbTokens
         return 0;
 
     //jumping onto each token until arrive on index'th token
     for(int i=0; i<=index; i++){
-        fromFile.read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
-        fromFile.read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc));
+        file->read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
+        file->read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc));
         std::vector<char> buffer(nbDoc*2*sizeof(int));
-        fromFile.read(buffer.data(), nbDoc*2*sizeof(int));
+        file->read(buffer.data(), nbDoc*2*sizeof(int));
     }
 
     //now we are on index'th token
-    newToken->index=tokenIndex;
-    newToken->nbDoc=nbDoc;
+    newToken = this->getToken(tokenIndex);
+    newToken->nbDoc += nbDoc;
+    document* last = getLast(newToken->doc);
+    document* iter_doc = newToken->doc;
     for(int j=0; j<nbDoc; j++){
         document* d = new document;
-        fromFile.read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id));
-        fromFile.read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency));
+        file->read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id));
+        file->read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency));
         d->id=fileId;
         d->frequency=fileFreq;
         d->next=NULL;
-        document* iter_doc = newToken->doc;
         if (iter_doc == NULL){
             newToken->doc = d;
         }
@@ -140,7 +136,6 @@ token* ReadWrite::readByIndex(int index){
             iter_doc->next=d;
         }
     }
-   fromFile.close();
    return newToken;
 }
 
