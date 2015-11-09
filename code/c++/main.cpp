@@ -45,6 +45,7 @@ int main(int argc, char** argv) {
     int counter=0;
     int whole_count =0;
     int tokenId = 0;
+    string tokenName;
     while (true){
         string in;
         if(!getline(std::cin, in)){
@@ -52,7 +53,7 @@ int main(int argc, char** argv) {
         }
         counter = counter + 1;
         //cout << in <<endl;
-        string tokenName;
+        //string tokenName;
         document* doc = strToDoc(in, tokenName);
         if (hashy.addToken(tokenName, tokenId)){
             //add token returns false if token already exists
@@ -97,10 +98,11 @@ int main(int argc, char** argv) {
     }
     std::string tempIndex1 = rw.getFolder() + intToString(i) + ".index";
     rw.mergeFinal(tempIndex0, tempIndex1, whole_count);
-    token* test = hashy.findToken("fallout");
+    cout << "YOUUUUUUUUUUUUUUUUUUUUUUUUUUUuu" << endl;
+    token* test = hashy.findToken("time");
     string fallout = "time";
     std::ifstream firstIndex;
-    firstIndex.open("time", std::ios::binary);
+    firstIndex.open("final.index", std::ios::binary);
     cout << "time " << test->index << " " << rw.readByIndex(test->index, &firstIndex)->doc->frequency << endl;
     firstIndex.close();
 

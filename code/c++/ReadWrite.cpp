@@ -71,7 +71,6 @@ bool ReadWrite::writeToken(std::ofstream* file, token* token)
     while (it != NULL) {
         file->write(reinterpret_cast<const char*>(&(it->id)),sizeof(it->id));
         file->write(reinterpret_cast<const char*>(&(it->frequency)),sizeof(it->frequency));
-        std::cout << "writedoc " << token->index << "|" << token->name << " " << it->id << std::endl;
         it = it->next;
     }
     return true;
@@ -105,16 +104,18 @@ token* ReadWrite::readByIndex(int index, std::ifstream* file){
     token* newToken;
 
     file->read(reinterpret_cast<char*>(&nbTokens), sizeof(nbTokens));
-    if(index>nbTokens) //error => index value can not be higher than nbTokens
+    if(index >= nbTokens) //error => index value can not be higher than nbTokens
         return 0;
 
     //jumping onto each token until arrive on index'th token
-    for(int i=0; i<=index; i++){
+    for(int i=0; i<index; i++){
         file->read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
         file->read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc));
         std::vector<char> buffer(nbDoc*2*sizeof(int));
         file->read(buffer.data(), nbDoc*2*sizeof(int));
     }
+    file->read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
+    file->read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc));
 
     //now we are on index'th token
     newToken = this->getToken(tokenIndex);
@@ -130,6 +131,7 @@ token* ReadWrite::readByIndex(int index, std::ifstream* file){
         d->next=NULL;
         if (iter_doc == NULL){
             newToken->doc = d;
+            iter_doc = d;
         }
         else{
             while (iter_doc->next != NULL){
@@ -271,7 +273,6 @@ bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
                              std::string secIndexFilename,
                              std::string outIndexFilename){
     
-    std::cout << firstIndexFilename << " " << secIndexFilename << std::endl;
     std::ifstream firstIndex;
     std::ifstream secIndex;
     std::ofstream outIndex;
@@ -314,6 +315,8 @@ bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
     }
     firstIndex.close();
     secIndex.close();
+    outIndex.seekp(0, std::ios::beg);
+    outIndex.write(reinterpret_cast<const char*>(&(gbCount)),sizeof(gbCount));
     outIndex.close();
     return true;
 
@@ -323,7 +326,6 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
                              std::string secIndexFilename,
                              int nbTotalDocs){
     std::string outIndexFilename = "final.index";
-    std::cout << outIndexFilename<< std::endl;
     std::ifstream firstIndex;
     std::ifstream secIndex;
     std::ofstream outIndex;
@@ -353,8 +355,8 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
             tfidf(t2,idf(nbTotalDocs, t2->nbDoc));
             this->writeToken(&outIndex, t2);
             deleteToken(t2);
-            firstIter++;
-            t2 = this->readByIndex(firstIter, &firstIndex);
+            secIter++;
+            t2 = this->readByIndex(secIter, &secIndex);
             continue;
         }
 
@@ -386,6 +388,8 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
     }
     firstIndex.close();
     secIndex.close();
+    outIndex.seekp(0, std::ios::beg);
+    outIndex.write(reinterpret_cast<const char*>(&(gbCount)),sizeof(gbCount));
     outIndex.close();
     return true;
 }
