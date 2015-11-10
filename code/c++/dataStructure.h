@@ -24,6 +24,10 @@ struct tokenList{
   token* t;
   tokenList* next;
 };
+struct answer{
+	int docId;
+	float score;
+};
 std::string intToString(int i);
 document* getLast(document* first);
 int idf(int nbTotal, int nb);
