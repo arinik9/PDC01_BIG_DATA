@@ -23,6 +23,7 @@ private:
    std::string filename; //for re-launching the system
 public:
     hasht(std::string name);
+    hasht(const hasht & h);
     int hash(std::string key);
     bool addToken(std::string name, int id, unsigned int nbDoc=0, unsigned int offset=0);
     bool addDocument(std::string tokenName, document* doc);
@@ -31,8 +32,8 @@ public:
     token* findToken(std::string name);
     hashToken* findParentToken(std::string name);
     void displayHashTable();
-    void writeAllTokensToFile(std::string name_final_inverted_file);
-    std::string readAllTokensFromFile();
+    void writeAllTokensToFile(double* normsOfDocs, int nbFiles);
+    double* readAllTokensFromFile();
 };
 
 #endif	/* HASHT_H */

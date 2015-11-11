@@ -147,7 +147,7 @@ void hasht::displayHashTable(){
             hashToken*  iter = HashTable[index];
             cout << "index: " << index << endl;
             while(iter!=NULL){
-                cout << "     token name: " << iter->t->name << " ** nbDoc: " << iter->t->nbDoc <<endl;
+                cout << "     token name: " << iter->t->name << " ** nbDoc: " << iter->t->nbDoc << " ** offset: " << iter->t->offset <<endl;
                 document* doct = iter->t->doc;
                 while(doct != NULL){
                     cout << "        doc id: " <<  doct->id << ", term freq: " << 
@@ -159,16 +159,13 @@ void hasht::displayHashTable(){
         }
     }
 }
-void hasht::writeAllTokensToFile(std::string fname){
+void hasht::writeAllTokensToFile(double* normsOfDocs, int nb_files){
     //fname is the final inverted file on disk.
     // We need to know its name for re-launching
     //TODO tf - idf
     this->toFile.open(this->filename.c_str(), std::ios::binary);
 
     this->toFile.write(reinterpret_cast<char*>(&(nb_tokens)), sizeof(nb_tokens));
-
-    //we need the name of final inverted file on disk
-    this->toFile.write(fname.c_str(), fname.size()+1);
 
     for(int index=0; index<tableSize; index++){
         if(HashTable[index] != NULL){
@@ -182,22 +179,27 @@ void hasht::writeAllTokensToFile(std::string fname){
             }
         }
     }
+
+    //writing norms
+    this->toFile.write(reinterpret_cast<char*>(&(nb_files)), sizeof(nb_files));
+    for(int i=0; i<nb_files; i++){
+        this->toFile.write(reinterpret_cast<char*>(&(normsOfDocs[i])), sizeof(normsOfDocs[i]));
+    }
     this->toFile.close();
 }
 
-std::string hasht::readAllTokensFromFile(){
+double* hasht::readAllTokensFromFile(){
     //TODO tf-idf
     this->fromFile.open(this->filename.c_str(), std::ios::binary);
-    std::string final_index_name;//all information about posting list is in this file
     std::string name;
     int nbTokens;
     int index;
+    int nb_files;
     unsigned int nbDoc;
     unsigned int offset;
 
     this->fromFile.read((char*)&nbTokens, sizeof(nbTokens));
     std::cout << nbTokens << std::endl;
-    std::getline(this->fromFile, final_index_name, '\0');
 
     for(int i=0; i<nbTokens; i++){
         this->fromFile.read(reinterpret_cast<char*>(&index), sizeof(index));
@@ -208,6 +210,14 @@ std::string hasht::readAllTokensFromFile(){
         addToken(name, index, nbDoc, offset);
     }
 
+    //reading norms
+    this->fromFile.read((char*)&nb_files, sizeof(nb_files));
+    double norms[nb_files];
+    for(int i=0; i<nb_files;i++){
+        this->fromFile.read((char*)&norms[i], sizeof(norms[i]));
+        cout << norms[i] << endl;
+    }
+
     this->fromFile.close();
-    return final_index_name;
+    return norms;
 }

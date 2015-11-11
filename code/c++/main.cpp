@@ -143,10 +143,13 @@ int main(int argc, char** argv) {
     req.query(vecToken, normsOfDocs);
     req.displayAnswers();
 
-    //rw.display();
-    //cout << endl;
-    //hashy.displayHashTable();
-    //cout << counter << endl;
+    /*hashy.displayHashTable();
+    hashy.writeAllTokensToFile(normsOfDocs, file_counter);
+    hasht hash2("tokens.bin");
+    double* norms;
+    norms = hash2.readAllTokensFromFile();
+    cout << "1: " << norms[0] << ", 2: " << norms[1] << endl;
+    hash2.displayHashTable();*/
 
     return 0;
 }
