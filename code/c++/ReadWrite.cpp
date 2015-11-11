@@ -13,6 +13,7 @@ ReadWrite::ReadWrite(){
     this->root=NULL;
     this->nb_tokens=0;
     this->folder = "./storage/";
+   //TODO if 'storage' does not exist, create a new one. Otherwise it gives a segfault error
     this->toFile = NULL;
 }
 
@@ -64,6 +65,7 @@ bool ReadWrite::write() {
 }
 bool ReadWrite::writeToken(std::ofstream* file, token* token)
 {
+    token->offset = file->tellp(); //this line is actually used for 'finalIndex' to find token's position easily
     file->write(reinterpret_cast<const char*>(&(token->index)),sizeof(token->index));
     file->write(reinterpret_cast<const char*>(&(token->nbDoc)),sizeof(token->nbDoc));
 
@@ -91,6 +93,46 @@ bool ReadWrite::writeToken(token* token)
     {
        return this->writeToken(this->toFile,token);
     }
+}
+
+token* ReadWrite::readByOffset(unsigned int offset, std::ifstream* file){
+    file->clear();
+    file->seekg(0, std::ios::beg);
+    int nbTokens;
+    int tokenIndex;
+    int nbDoc;
+    int fileId;
+    int fileFreq;
+    token* newToken = new token;
+    file->seekg(offset, std::ios::beg);
+
+    file->read(reinterpret_cast<char*>(&tokenIndex), sizeof(((token*)NULL)->index));
+    file->read(reinterpret_cast<char*>(&nbDoc), sizeof(((token*)NULL)->nbDoc));
+    newToken->index = tokenIndex;
+    newToken->nbDoc = nbDoc;
+    newToken->doc = NULL;
+
+    document* iter_doc = newToken->doc;
+    for(int j=0; j<nbDoc; j++){
+        document* d = new document;
+        file->read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id));
+        file->read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency));
+        d->id=fileId;
+        d->frequency=fileFreq;
+        d->next=NULL;
+        if (iter_doc == NULL){
+            newToken->doc = d;
+            iter_doc = d;
+        }
+        else{
+            while (iter_doc->next != NULL){
+                iter_doc=iter_doc->next;
+            }
+            iter_doc->next=d;
+        }
+    }
+
+    return newToken;
 }
 
 token* ReadWrite::readByIndex(int index, std::ifstream* file){
