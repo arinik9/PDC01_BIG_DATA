@@ -26,7 +26,7 @@ struct tokenList{
 };
 struct answer{
 	int docId;
-	float score;
+	double score;
 };
 std::string intToString(int i);
 document* getLast(document* first);

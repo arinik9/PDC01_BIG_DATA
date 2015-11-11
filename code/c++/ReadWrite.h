@@ -29,13 +29,14 @@ public:
 	void display();
 	void createInvertedFileOnDisk();
     bool deleteIndexFile(int id);
+    bool deleteTempIndexFile(int id);
     bool closeCurrentWritingFile();
     bool mergeIndexes(std::string firstIndexFilename,
                       std::string secIndexFilename,
                       std::string outIndexFilename);
     bool mergeFinal(std::string firstIndexFilename,
                     std::string secIndexFilename,
-                    int nbTotalDocs);
+                    int nbTotalDocs, double* normsOfDocs);
     int getNbFiles();
 	ReadWrite(std::string folder);
     ReadWrite();

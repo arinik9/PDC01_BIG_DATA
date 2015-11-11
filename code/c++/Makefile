@@ -3,7 +3,7 @@ DEBUG ?=
 
 all: main
 
-main: hasht.o ReadWrite.o dataStructure.o request.o main.cpp 
+main: hasht.o ReadWrite.o dataStructure.o Request.o main.cpp 
 	$(CC) $(DEBUG) -o $@ $^
 
 ReadWrite.o: ReadWrite.cpp
@@ -12,7 +12,7 @@ ReadWrite.o: ReadWrite.cpp
 hasht.o: hasht.cpp
 	$(CC) $(DEBUG) -c $^
 
-request.o: request.cpp
+Request.o: Request.cpp
 	$(CC) $(DEBUG) -c $^
 
 dataStructure.o: dataStructure.cpp

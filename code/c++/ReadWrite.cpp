@@ -1,5 +1,6 @@
 #include "dataStructure.h"
 #include "ReadWrite.h"
+#include <math.h>
 #include <vector>
 
 ReadWrite::ReadWrite(std::string folder){
@@ -13,7 +14,6 @@ ReadWrite::ReadWrite(){
     this->root=NULL;
     this->nb_tokens=0;
     this->folder = "./storage/";
-   //TODO if 'storage' does not exist, create a new one. Otherwise it gives a segfault error
     this->toFile = NULL;
 }
 
@@ -65,7 +65,7 @@ bool ReadWrite::write() {
 }
 bool ReadWrite::writeToken(std::ofstream* file, token* token)
 {
-    token->offset = file->tellp(); //this line is actually used for 'finalIndex' to find token's position easily
+    token->offset = file->tellp();
     file->write(reinterpret_cast<const char*>(&(token->index)),sizeof(token->index));
     file->write(reinterpret_cast<const char*>(&(token->nbDoc)),sizeof(token->nbDoc));
 
@@ -305,6 +305,14 @@ bool ReadWrite::deleteIndexFile(int i)
     return std::remove(fileName.c_str());
 
 }
+
+bool ReadWrite::deleteTempIndexFile(int i){
+   // it does not give any error even if the file does not exist
+    std::string fileName = this->folder + intToString(i) + ".tempindex";
+
+    return std::remove(fileName.c_str());
+}
+
 std::string ReadWrite::getNextFileName()
 {
     this->nbFiles++;
@@ -366,7 +374,7 @@ bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
 
 bool ReadWrite::mergeFinal(std::string firstIndexFilename,
                              std::string secIndexFilename,
-                             int nbTotalDocs){
+                             int nbTotalDocs, double* normsOfDocs){
     std::string outIndexFilename = "final.index";
     std::ifstream firstIndex;
     std::ifstream secIndex;
@@ -388,6 +396,13 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
         if (!t2){
             tfidf(t1,idf(nbTotalDocs, t1->nbDoc));
             this->writeToken(&outIndex, t1);
+            //aggregating tf-idf value for each document
+            document* iterDoc = t1->doc;
+            while(iterDoc != NULL){
+                normsOfDocs[iterDoc->id-1] += pow(iterDoc->frequency, 2);
+                iterDoc = iterDoc->next;
+            }
+            //
             deleteToken(t1);
             firstIter++;
             t1 = this->readByIndex(firstIter, &firstIndex);
@@ -396,6 +411,13 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
         if (!t1){
             tfidf(t2,idf(nbTotalDocs, t2->nbDoc));
             this->writeToken(&outIndex, t2);
+            //aggregating tf-idf value for each document
+            document* iterDoc = t2->doc;
+            while(iterDoc != NULL){
+                normsOfDocs[iterDoc->id-1] += pow(iterDoc->frequency, 2);
+                iterDoc = iterDoc->next;
+            }
+            //
             deleteToken(t2);
             secIter++;
             t2 = this->readByIndex(secIter, &secIndex);
@@ -405,6 +427,13 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
         if (firstIter == firstCount || t1->index > t2->index){
             tfidf(t2,idf(nbTotalDocs, t2->nbDoc));
             this->writeToken(&outIndex, t2);
+            //aggregating tf-idf value for each document
+            document* iterDoc = t2->doc;
+            while(iterDoc != NULL){
+                normsOfDocs[iterDoc->id-1] += pow(iterDoc->frequency, 2);
+                iterDoc = iterDoc->next;
+            }
+            //
             deleteToken(t2);
             secIter++;
             t2 = this->readByIndex(secIter, &secIndex);
@@ -413,6 +442,13 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
         if (secIter == secCount || t1->index < t2->index){
             tfidf(t1,idf(nbTotalDocs, t1->nbDoc));
             this->writeToken(&outIndex, t1);
+            //aggregating tf-idf value for each document
+            document* iterDoc = t1->doc;
+            while(iterDoc != NULL){
+                normsOfDocs[iterDoc->id-1] += pow(iterDoc->frequency, 2);
+                iterDoc = iterDoc->next;
+            }
+            //
             deleteToken(t1);
             firstIter++;
             t1 = this->readByIndex(firstIter, &firstIndex);
@@ -421,6 +457,13 @@ bool ReadWrite::mergeFinal(std::string firstIndexFilename,
         gbCount--;
         tfidf(t1,idf(nbTotalDocs, t1->nbDoc));
         this->writeToken(&outIndex, t1);
+            //aggregating tf-idf value for each document
+            document* iterDoc = t1->doc;
+            while(iterDoc != NULL){
+                normsOfDocs[iterDoc->id-1] += pow(iterDoc->frequency, 2);
+                iterDoc = iterDoc->next;
+            }
+            //
         deleteToken(t2);
         secIter++;
         t2 = this->readByIndex(secIter, &secIndex);

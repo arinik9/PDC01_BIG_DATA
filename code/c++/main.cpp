@@ -13,6 +13,8 @@
 #include "dataStructure.h"
 #include "hasht.h"
 #include "ReadWrite.h"
+#include "Request.h"
+#include <math.h>
 #define STR_SIZE 3
 #define DOC_MAX 10
 
@@ -45,6 +47,8 @@ int main(int argc, char** argv) {
     int counter=0;
     int whole_count =0;
     int tokenId = 0;
+    int file_counter=0;
+    int last_file_id=-1;
     string tokenName;
     while (true){
         string in;
@@ -62,6 +66,12 @@ int main(int argc, char** argv) {
         hashy.addDocument(tokenName, doc);
         token* newToken = hashy.findToken(tokenName);
         rw.addToken(newToken);
+        //increment file counter
+        if(last_file_id != doc->id){
+            last_file_id = doc->id;
+            file_counter += 1;
+        }
+
         if (counter < DOC_MAX){
             continue;
         }
@@ -80,6 +90,12 @@ int main(int argc, char** argv) {
     whole_count += counter;
     rw.write();
     rw.flush();
+
+    double normsOfDocs[file_counter];
+    //initializing
+    for(int z=0; z!=file_counter; z++)
+        normsOfDocs[z]=0.0;
+
     int fileIndexCount = rw.getNbFiles();
     //fileIndexCount = rw.fileIndexCount
     //
@@ -96,15 +112,36 @@ int main(int argc, char** argv) {
         }
         tempIndex0 = outIndex;
     }
+    
     std::string tempIndex1 = rw.getFolder() + intToString(i) + ".index";
-    rw.mergeFinal(tempIndex0, tempIndex1, whole_count);
-    cout << "YOUUUUUUUUUUUUUUUUUUUUUUUUUUUuu" << endl;
-    token* test = hashy.findToken("time");
-    string fallout = "time";
+    rw.mergeFinal(tempIndex0, tempIndex1, whole_count, normsOfDocs);
+
+    //deleting all small index files
+    for(int i=1; i<=fileIndexCount; i++){
+        rw.deleteIndexFile(i);
+        rw.deleteTempIndexFile(i);
+    }
+
+    for(int y=0; y!=file_counter; y++){
+        normsOfDocs[y] = sqrt(normsOfDocs[y]);
+    }
+
+    Request req;
+    std::vector<std::string> vec(2); vec[0]="home"; vec[1]="page";
+    cout << "Given query words: <" << vec[0] << ", " << vec[1] << ">" << endl;
+    std::vector<token*> vecToken;
+
     std::ifstream firstIndex;
     firstIndex.open("final.index", std::ios::binary);
-    cout << "time " << test->index << " " << rw.readByIndex(test->index, &firstIndex)->doc->frequency << endl;
+    for(std::vector<std::string>::iterator iterTokenName=vec.begin(); iterTokenName!=vec.end(); iterTokenName++){
+    unsigned int offset = hashy.findToken(*iterTokenName)->offset;
+    token* tkn = rw.readByOffset(offset, &firstIndex);
+    vecToken.push_back(tkn);
+    }
     firstIndex.close();
+
+    req.query(vecToken, normsOfDocs);
+    req.displayAnswers();
 
     //rw.display();
     //cout << endl;
