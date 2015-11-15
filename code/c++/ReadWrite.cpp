@@ -3,6 +3,9 @@
 #include <math.h>
 #include <vector>
 
+
+//Class that handle writing of the indexes
+
 ReadWrite::ReadWrite(std::string folder){
     this->folder = folder;
     this->root = NULL;
@@ -28,6 +31,8 @@ int ReadWrite::getNbFiles(){
     return this->nbFiles;
 }
 token* ReadWrite::getToken(int index){
+    //Get token from a ram stored chained list. this token is the same one
+    //as the one kept inside the hash table
     tokenList* iter = root;
     while (iter != NULL){
         if (iter->t->index == index){
@@ -39,9 +44,6 @@ token* ReadWrite::getToken(int index){
 }
 
 bool ReadWrite::write() {
-    //TODO Add exception handling
-    //TODO it is possibile that we should change the type of 'this->nb_tokens' from int to uint32
-
     std::ofstream *file = new std::ofstream(this->getNextFileName().c_str(), std::ofstream::binary);
 
     if(this->folder == "" || !file->good())//error => no filename defined
@@ -65,6 +67,7 @@ bool ReadWrite::write() {
 }
 bool ReadWrite::writeToken(std::ofstream* file, token* token)
 {
+    // write token to an already opened ofstream
     token->offset = file->tellp();
     file->write(reinterpret_cast<const char*>(&(token->index)),sizeof(token->index));
     file->write(reinterpret_cast<const char*>(&(token->nbDoc)),sizeof(token->nbDoc));
@@ -80,6 +83,7 @@ bool ReadWrite::writeToken(std::ofstream* file, token* token)
 
 bool ReadWrite::writeToken(token* token)
 {
+    // Never used
     if(this->toFile == NULL)
     {
         this->toFile = new std::ofstream(getNextFileName().c_str(),std::ios::binary);
@@ -96,6 +100,7 @@ bool ReadWrite::writeToken(token* token)
 }
 
 token* ReadWrite::readByOffset(unsigned int offset, std::ifstream* file){
+    //Read token from an already opened ifstream
     file->clear();
     file->seekg(0, std::ios::beg);
     int nbTokens;
@@ -118,8 +123,8 @@ token* ReadWrite::readByOffset(unsigned int offset, std::ifstream* file){
         file->read(reinterpret_cast<char*>(&fileId), sizeof(((document*)NULL)->id));
         file->read(reinterpret_cast<char*>(&fileFreq), sizeof(((document*)NULL)->frequency));
         d->id=fileId;
-        d->frequency=fileFreq;
-        d->next=NULL;
+        d->frequency = fileFreq;
+        d->next = NULL;
         if (iter_doc == NULL){
             newToken->doc = d;
             iter_doc = d;
@@ -186,6 +191,8 @@ token* ReadWrite::readByIndex(int index, std::ifstream* file){
 }
 
 void ReadWrite::addToken(token* newtoken){
+    // Adds token in a sorted chained list
+    // Sort is done using the token's id
     tokenList* t_list = new tokenList;
     t_list->t = newtoken;
     t_list->next = NULL;
@@ -258,6 +265,7 @@ void ReadWrite::flush(){
 
 
 void ReadWrite::deleteToken(token* t){
+    // Does not delete the token, merely resets its posting list
     document* doc1 = t->doc;
     if (t->nbDoc == 0){
         return;
@@ -271,20 +279,6 @@ void ReadWrite::deleteToken(token* t){
     t->doc = NULL;
 }
 
-void ReadWrite::createInvertedFileOnDisk() {
-    //Write to a binary file
- /*   int test = 2;
-    toFile.write(reinterpret_cast<const char*>(&test), sizeof(int));
-    toFile.close();
-
-
-    fromFile.open(filename.c_str(), std::ios::binary);
-    int t;
-    fromFile.read(reinterpret_cast<char*>(&t), sizeof(int));
-    fromFile.close();
-    std::cout << "output from " << filename << ": " << t << std::endl;
-*/
-}
 bool ReadWrite::closeCurrentWritingFile()
 {
     this->toFile->close();
@@ -322,6 +316,7 @@ std::string ReadWrite::getNextFileName()
 bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
                              std::string secIndexFilename,
                              std::string outIndexFilename){
+    //Merges to files
     
     std::ifstream firstIndex;
     std::ifstream secIndex;
@@ -354,6 +349,8 @@ bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
             t1 = this->readByIndex(firstIter, &firstIndex);
             continue;
         }
+        // If both token have the same id, we need to reduce the total number
+        // of token for the file
         gbCount--;
         this->writeToken(&outIndex, t1);
         deleteToken(t2);
@@ -375,6 +372,8 @@ bool ReadWrite::mergeIndexes(std::string firstIndexFilename,
 bool ReadWrite::mergeFinal(std::string firstIndexFilename,
                              std::string secIndexFilename,
                              int nbTotalDocs, double* normsOfDocs){
+    //Mostly the same as the previous method, but there was to much variation
+    //to make one method
     std::string outIndexFilename = "final.index";
     std::ifstream firstIndex;
     std::ifstream secIndex;

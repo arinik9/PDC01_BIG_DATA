@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
         string in;
         if(!getline(std::cin, in)){
             break;
+            // If we get End Of File, we break away from loop
         }
         counter = counter + 1;
         //cout << in <<endl;
@@ -81,29 +82,22 @@ int main(int argc, char** argv) {
         //Write to disk
         rw.write();
         rw.flush();
-        //Flush posting lists
-        //Flush ReadWrite's chained list
-        //cout << counter << endl;
         whole_count += counter;
         counter = 0;
     }
     whole_count += counter;
+    //write leftovers
     rw.write();
     rw.flush();
 
     double normsOfDocs[file_counter];
-    //initializing
     for(int z=0; z!=file_counter; z++)
         normsOfDocs[z]=0.0;
 
     int fileIndexCount = rw.getNbFiles();
-    //fileIndexCount = rw.fileIndexCount
-    //
-    //merge
-    // string tempIndex = index(0)
-    // token* t = rw.read(0,tempIndex)
     std::string tempIndex0 = rw.getFolder() + intToString(1) + ".index";
     int i;
+    // Initial merge, filenumbers start at 1
     for (i=2; i < fileIndexCount; i++){
         std::string tempIndex1 = rw.getFolder() + intToString(i) + ".index";
         std::string outIndex = rw.getFolder() + intToString(i) + ".tempindex";
@@ -113,6 +107,7 @@ int main(int argc, char** argv) {
         tempIndex0 = outIndex;
     }
     
+    // Final merge does a bit more than just merging
     std::string tempIndex1 = rw.getFolder() + intToString(i) + ".index";
     rw.mergeFinal(tempIndex0, tempIndex1, whole_count, normsOfDocs);
 
@@ -122,11 +117,13 @@ int main(int argc, char** argv) {
         rw.deleteTempIndexFile(i);
     }
 
+    // Calculate norm of docs for vectioral space
     for(int y=0; y!=file_counter; y++){
         normsOfDocs[y] = sqrt(normsOfDocs[y]);
     }
 
     Request req;
+    //query will search documents containing "home" and "page"
     std::vector<std::string> vec(2); vec[0]="home"; vec[1]="page";
     cout << "Given query words: <" << vec[0] << ", " << vec[1] << ">" << endl;
     std::vector<token*> vecToken;
@@ -134,22 +131,15 @@ int main(int argc, char** argv) {
     std::ifstream firstIndex;
     firstIndex.open("final.index", std::ios::binary);
     for(std::vector<std::string>::iterator iterTokenName=vec.begin(); iterTokenName!=vec.end(); iterTokenName++){
-    unsigned int offset = hashy.findToken(*iterTokenName)->offset;
-    token* tkn = rw.readByOffset(offset, &firstIndex);
-    vecToken.push_back(tkn);
+        unsigned int offset = hashy.findToken(*iterTokenName)->offset;
+        token* tkn = rw.readByOffset(offset, &firstIndex);
+        vecToken.push_back(tkn);
     }
     firstIndex.close();
 
     req.query(vecToken, normsOfDocs);
     req.displayAnswers();
 
-    /*hashy.displayHashTable();
-    hashy.writeAllTokensToFile(normsOfDocs, file_counter);
-    hasht hash2("tokens.bin");
-    double* norms;
-    norms = hash2.readAllTokensFromFile();
-    cout << "1: " << norms[0] << ", 2: " << norms[1] << endl;
-    hash2.displayHashTable();*/
 
     return 0;
 }

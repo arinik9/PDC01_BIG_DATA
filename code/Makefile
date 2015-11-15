@@ -8,6 +8,7 @@ run: cpp
 
 cpp:
 	$(MAKE) -C c++
+	mkdir -p storage
 
 clean:
 	-rm ./storage/*

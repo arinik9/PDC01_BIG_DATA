@@ -9,6 +9,7 @@ std::string intToString(int i)
 }
 
 document* getLast(document* first){
+    //Return iterator to the end of a posting list
     if (first == NULL){
         return NULL;
     }
@@ -20,6 +21,7 @@ document* getLast(document* first){
 }
 
 int idf(int nbTotal, int nb){
+    // calculate int idf
     int before_log = nbTotal/nb;
     int log_result = 0;
     while (before_log >>=1){

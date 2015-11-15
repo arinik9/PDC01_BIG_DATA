@@ -162,7 +162,6 @@ void hasht::displayHashTable(){
 void hasht::writeAllTokensToFile(double* normsOfDocs, int nb_files){
     //fname is the final inverted file on disk.
     // We need to know its name for re-launching
-    //TODO tf - idf
     this->toFile.open(this->filename.c_str(), std::ios::binary);
 
     this->toFile.write(reinterpret_cast<char*>(&(nb_tokens)), sizeof(nb_tokens));
@@ -190,6 +189,7 @@ void hasht::writeAllTokensToFile(double* normsOfDocs, int nb_files){
 
 double* hasht::readAllTokensFromFile(){
     //TODO tf-idf
+    // Probably doesnt work (returns address of a local table)
     this->fromFile.open(this->filename.c_str(), std::ios::binary);
     std::string name;
     int nbTokens;

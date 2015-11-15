@@ -27,7 +27,6 @@ public:
     void flush();
     std::string getFolder();
 	void display();
-	void createInvertedFileOnDisk();
     bool deleteIndexFile(int id);
     bool deleteTempIndexFile(int id);
     bool closeCurrentWritingFile();
