@@ -1,10 +1,11 @@
 CC=g++
 DEBUG ?=
+DB ?=../db
 
 all: cpp
 
 run: cpp
-	python preprocessing.py ../db | ./c++/main
+	python preprocessing.py $(DB) | ./c++/main
 
 cpp:
 	$(MAKE) -C c++
